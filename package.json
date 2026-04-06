@@ -1,0 +1,13 @@
+{
+  "name": "create_presentation",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Local prototype for uploading PDFs and sending them to Gemini.",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js"
+  },
+  "devDependencies": {
+    "@marp-team/marp-cli": "^4.3.1"
+  }
+}

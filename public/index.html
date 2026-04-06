@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Paper to Gemini</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <main class="page">
+      <section class="hero">
+        <p class="eyebrow">Local Prototype</p>
+        <h1>論文PDFからMarpスライドを作る</h1>
+        <p class="lead">
+          arXiv論文のPDFをアップロードし、まずGeminiで論文を整理し、その結果をもとに
+          Marp用Markdownまで生成する初期アプリです。
+        </p>
+      </section>
+
+      <section class="panel">
+        <div class="panel-heading">
+          <p class="step-label">Step 1</p>
+          <h2>PDFを解析して発表用メモを作る</h2>
+        </div>
+
+        <form id="analyze-form" class="form">
+          <label class="field">
+            <span>PDFファイル</span>
+            <input id="pdf-file" name="pdf-file" type="file" accept="application/pdf" required />
+          </label>
+
+          <label class="field">
+            <span>Geminiモデル</span>
+            <input id="model" name="model" type="text" value="gemini-2.5-pro" />
+          </label>
+
+          <label class="field">
+            <span>プロンプト</span>
+            <textarea id="prompt" name="prompt" rows="8">
+この論文を読んで、スライド化の下準備として以下を日本語で整理してください。
+1. 論文の背景
+2. 解決したい課題
+3. 提案手法
+4. 実験設定
+5. 主な結果
+6. 発表スライドに入れるべき重要図表やメッセージ
+            </textarea>
+          </label>
+
+          <button id="submit-button" type="submit">Geminiへ送る</button>
+        </form>
+
+        <div class="status-wrap">
+          <p id="status" class="status">PDFを選んで送信してください。</p>
+        </div>
+      </section>
+
+      <section class="panel output-panel">
+        <div class="output-header">
+          <h2>Step 1の出力</h2>
+          <button id="copy-button" type="button" class="secondary-button">コピー</button>
+        </div>
+        <pre id="output" class="output">まだ結果はありません。</pre>
+      </section>
+
+      <section class="panel">
+        <div class="panel-heading">
+          <p class="step-label">Step 2</p>
+          <h2>PDFを参照しながらMarpスライドMarkdownを作る</h2>
+        </div>
+
+        <form id="slides-form" class="form">
+          <label class="field">
+            <span>Step 2で参照するPDFファイル</span>
+            <input id="slide-pdf-file" name="slide-pdf-file" type="file" accept="application/pdf" />
+          </label>
+
+          <div class="two-field-grid">
+            <label class="field">
+              <span>イベント名</span>
+              <input id="event-name" name="event-name" type="text" value="論文紹介" />
+            </label>
+
+            <label class="field">
+              <span>発表日</span>
+              <input id="event-date" name="event-date" type="text" placeholder="2026/04/07" />
+            </label>
+          </div>
+
+          <div class="two-field-grid">
+            <label class="field">
+              <span>所属</span>
+              <input id="affiliation" name="affiliation" type="text" placeholder="京都大学 工学部 ..." />
+            </label>
+
+            <label class="field">
+              <span>発表者名</span>
+              <input id="presenter-name" name="presenter-name" type="text" placeholder="知能 太郎" />
+            </label>
+          </div>
+
+          <label class="field">
+            <span>論文要約・発表メモ</span>
+            <textarea id="slide-source" name="slide-source" rows="12" placeholder="Step 1の出力、または自分で整理した論文メモを入れてください"></textarea>
+          </label>
+
+          <label class="field">
+            <span>希望するスライドの流れ・章立て（任意）</span>
+            <textarea id="slide-flow" name="slide-flow" rows="8" placeholder="例:
+1. 背景
+2. 問題設定
+3. 提案手法の概要
+4. 数式のポイント
+5. 実験結果
+6. まとめ
+
+この流れを優先してスライド化します"></textarea>
+          </label>
+
+          <button id="slides-submit-button" type="submit">Marp Markdownを生成する</button>
+        </form>
+
+        <div class="status-wrap">
+          <p id="slides-status" class="status">Step 2では、この欄で選んだPDFを参照しながらスライドを生成します。Step 1は任意です。</p>
+        </div>
+      </section>
+
+      <section class="panel output-panel">
+        <div class="output-header">
+          <h2>Step 2の出力</h2>
+          <div class="button-row">
+            <button id="slides-copy-button" type="button" class="secondary-button">コピー</button>
+          </div>
+        </div>
+        <div class="save-row">
+          <label class="field save-field">
+            <span>data/ に保存する名前</span>
+            <input id="slides-file-name" name="slides-file-name" type="text" placeholder="sample" />
+          </label>
+          <button id="slides-save-button" type="button" class="secondary-button">data/~~~.md として保存</button>
+        </div>
+        <pre id="slides-output" class="output">まだMarp Markdownはありません。</pre>
+      </section>
+    </main>
+
+    <script src="/pdf-utils.js"></script>
+    <script src="/app.js"></script>
+    <script src="/slide-generator.js"></script>
+  </body>
+</html>
