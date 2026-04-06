@@ -2,11 +2,13 @@ const http = require("http");
 const fs = require("fs");
 const path = require("path");
 const { buildSlidePrompt } = require("./prompts/build-slide-prompt");
+const { buildStep3Prompt } = require("./prompts/build-step3-prompt");
+const { extractFiguresFromPdf } = require("./lib/pdf-figure-extractor");
 
 const ROOT_DIR = __dirname;
 const PUBLIC_DIR = path.join(ROOT_DIR, "public");
 const DATA_DIR = path.join(ROOT_DIR, "data");
-const MAX_BODY_BYTES = 25 * 1024 * 1024;
+const MAX_BODY_BYTES = 80 * 1024 * 1024;
 
 loadEnvFile(path.join(ROOT_DIR, ".env"));
 const DEFAULT_PORT = Number(process.env.PORT || 3000);
@@ -28,6 +30,14 @@ const server = http.createServer(async (req, res) => {
 
     if (req.method === "POST" && req.url === "/api/slides") {
       return handleSlideGeneration(req, res);
+    }
+
+    if (req.method === "POST" && req.url === "/api/extract-figures") {
+      return handleFigureExtraction(req, res);
+    }
+
+    if (req.method === "POST" && req.url === "/api/regenerate-step3") {
+      return handleStep3Regeneration(req, res);
     }
 
     if (req.method === "POST" && req.url === "/api/save-slide") {
@@ -218,7 +228,142 @@ async function handleSaveSlide(req, res) {
   });
 }
 
+async function handleFigureExtraction(req, res) {
+  const apiKey = process.env.GEMINI_API_KEY;
+
+  if (!apiKey) {
+    return sendJson(res, 500, {
+      error: "GEMINI_API_KEY is not set. Copy .env.example to .env and add your API key.",
+    });
+  }
+
+  const body = await readJsonBody(req, res, { allowLargePdf: true });
+
+  if (!body) {
+    return;
+  }
+
+  const step2Markdown = String(body.step2Markdown || "").trim();
+  const fileName = String(body.fileName || "paper.pdf").trim() || "paper.pdf";
+  const extractedPages = Array.isArray(body.extractedPages) ? body.extractedPages : [];
+  const rawBaseName = String(body.baseName || "sample").trim() || "sample";
+  const model = String(body.model || process.env.GEMINI_MODEL || "gemini-2.5-pro").trim();
+
+  if (!step2Markdown) {
+    return sendJson(res, 400, {
+      error: "Step 3ではStep 2のMarp Markdownが必要です。",
+    });
+  }
+
+  if (extractedPages.length === 0) {
+    return sendJson(res, 400, {
+      error: "図抽出では、ブラウザ側PDF.jsで抽出した画像候補が必要です。Step 3用のPDFを選んで再実行してください。",
+    });
+  }
+
+  const placeholders = extractFigurePlaceholders(step2Markdown);
+
+  if (placeholders.length === 0) {
+    return sendJson(res, 400, {
+      error: "Step 2のMarkdownに [図: ...] 形式のプレースホルダが見つかりませんでした。",
+    });
+  }
+
+  const baseName = sanitizeFileName(rawBaseName) || "sample";
+  const assetDirName = `${baseName}-step3-assets`;
+  const assetDirPath = path.join(DATA_DIR, assetDirName);
+  const extractedFigures = await extractFiguresFromPdf({
+    placeholders,
+    extractedPages,
+    outputDir: assetDirPath,
+    assetPathPrefix: `./${assetDirName}`,
+    apiKey,
+    model,
+  });
+  const resolvedFigures = extractedFigures.filter((figure) => figure.found);
+
+  if (resolvedFigures.length === 0) {
+    return sendJson(res, 422, {
+      error: "論文PDFから対応する図を見つけられませんでした。Step 2の図プレースホルダ表現を見直してください。",
+      extractedFigures,
+    });
+  }
+
+  fs.writeFileSync(
+    path.join(assetDirPath, "figures.json"),
+    JSON.stringify(extractedFigures, null, 2),
+    "utf8",
+  );
+
+  return sendJson(res, 200, {
+    model,
+    sourcePdf: fileName,
+    extractedFigures,
+    resolvedFigureCount: resolvedFigures.length,
+  });
+}
+
+async function handleStep3Regeneration(req, res) {
+  const apiKey = process.env.GEMINI_API_KEY;
+
+  if (!apiKey) {
+    return sendJson(res, 500, {
+      error: "GEMINI_API_KEY is not set. Copy .env.example to .env and add your API key.",
+    });
+  }
+
+  const body = await readJsonBody(req, res);
+
+  if (!body) {
+    return;
+  }
+
+  const step2Markdown = String(body.step2Markdown || "").trim();
+  const extractedFigures = Array.isArray(body.extractedFigures) ? body.extractedFigures : [];
+  const model = String(body.model || process.env.GEMINI_MODEL || "gemini-2.5-pro").trim();
+
+  if (!step2Markdown) {
+    return sendJson(res, 400, {
+      error: "Step 3ではStep 2のMarp Markdownが必要です。",
+    });
+  }
+
+  if (extractedFigures.length === 0) {
+    return sendJson(res, 400, {
+      error: "先に図抽出を行い、その結果を渡してください。",
+    });
+  }
+
+  const resolvedFigures = extractedFigures.filter((figure) => figure && figure.found && figure.imagePath);
+
+  if (resolvedFigures.length === 0) {
+    return sendJson(res, 422, {
+      error: "抽出結果に利用できる図がありません。図抽出結果を見直してください。",
+    });
+  }
+
+  const prompt = buildStep3Prompt({
+    step2Markdown,
+    extractedFigures: resolvedFigures,
+  });
+  const output = await generateGeminiText({
+    apiKey,
+    model,
+    parts: [{ text: prompt }],
+  });
+
+  return sendJson(res, 200, {
+    model,
+    resolvedFigureCount: resolvedFigures.length,
+    output: normalizeMarpOutput(output),
+  });
+}
+
 function serveStaticFile(req, res) {
+  if (req.url.startsWith("/vendor/pdfjs/")) {
+    return servePdfJsVendorFile(req, res);
+  }
+
   const requestPath = req.url === "/" ? "/index.html" : req.url;
   const safePath = path.normalize(requestPath).replace(/^(\.\.[/\\])+/, "");
   const filePath = path.join(PUBLIC_DIR, safePath);
@@ -251,12 +396,38 @@ function getContentType(filePath) {
     case ".css":
       return "text/css; charset=utf-8";
     case ".js":
+    case ".mjs":
       return "application/javascript; charset=utf-8";
     case ".json":
       return "application/json; charset=utf-8";
     default:
       return "application/octet-stream";
   }
+}
+
+function servePdfJsVendorFile(req, res) {
+  const requestPath = req.url.replace(/^\/vendor\/pdfjs\//, "");
+  const safePath = path.normalize(requestPath).replace(/^(\.\.[/\\])+/, "");
+  const vendorRoot = path.join(ROOT_DIR, "node_modules", "pdfjs-dist");
+  const filePath = path.join(vendorRoot, safePath);
+
+  if (!filePath.startsWith(vendorRoot)) {
+    return sendJson(res, 403, { error: "Forbidden" });
+  }
+
+  fs.readFile(filePath, (error, content) => {
+    if (error) {
+      if (error.code === "ENOENT") {
+        return sendJson(res, 404, { error: "Not found" });
+      }
+
+      console.error(error);
+      return sendJson(res, 500, { error: "Failed to read file." });
+    }
+
+    res.writeHead(200, { "Content-Type": getContentType(filePath) });
+    res.end(content);
+  });
 }
 
 function sendJson(res, statusCode, payload) {
@@ -274,7 +445,7 @@ async function readJsonBody(req, res, options = {}) {
   } catch (error) {
     if (error?.code === "REQUEST_TOO_LARGE") {
       const message = options.allowLargePdf
-        ? "Uploaded PDF is too large for this prototype. Try a smaller file."
+        ? "Uploaded PDF or extracted image payload is too large for this prototype. Try a smaller file."
         : "Request body is too large.";
 
       sendJson(res, 413, { error: message });
@@ -437,6 +608,10 @@ function ensureMarkdownExtension(fileName) {
   }
 
   return fileName.toLowerCase().endsWith(".md") ? fileName : `${fileName}.md`;
+}
+
+function extractFigurePlaceholders(markdown) {
+  return [...markdown.matchAll(/\[図:\s*([^\]]+)\]/g)].map((match) => match[1].trim());
 }
 
 function loadEnvFile(filePath) {

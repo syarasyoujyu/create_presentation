@@ -1,0 +1,121 @@
+const step2Shared = window.slideAppShared;
+
+const slidesForm = document.getElementById("slides-form");
+const eventNameInput = document.getElementById("event-name");
+const eventDateInput = document.getElementById("event-date");
+const affiliationInput = document.getElementById("affiliation");
+const presenterNameInput = document.getElementById("presenter-name");
+const slideFlowInput = document.getElementById("slide-flow");
+const slidesStatusElement = document.getElementById("slides-status");
+const slidesOutputElement = document.getElementById("slides-output");
+const slidesSubmitButton = document.getElementById("slides-submit-button");
+const slidesCopyButton = document.getElementById("slides-copy-button");
+const slidesSaveButton = document.getElementById("slides-save-button");
+
+bootstrapStep2();
+
+slidesForm.addEventListener("submit", async (event) => {
+  event.preventDefault();
+
+  const analysis = step2Shared.slideSourceInput.value.trim();
+  const slideFlow = slideFlowInput.value.trim();
+  const model = step2Shared.modelField.value.trim();
+  const eventName = eventNameInput.value.trim() || "論文紹介";
+  const eventDate = eventDateInput.value.trim() || step2Shared.formatToday();
+  const affiliation = affiliationInput.value.trim() || "所属未入力";
+  const presenterName = presenterNameInput.value.trim() || "発表者未入力";
+  const file = step2Shared.getStep2PdfFile();
+
+  if (!file) {
+    setSlidesStatus("Step 2用のPDFファイルを選んでください。", true);
+    return;
+  }
+
+  setStep2Loading(true);
+  setSlidesStatus("PDFを参照しながらMarp Markdownを生成しています...", false);
+  slidesOutputElement.value = "Geminiがスライド原稿を組み立てています...";
+
+  try {
+    const pdfData = await window.pdfUtils.readPdfFile(file);
+    const response = await fetch("/api/slides", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        analysis,
+        slideFlow,
+        fileName: pdfData.fileName,
+        mimeType: pdfData.mimeType,
+        pdfBase64: pdfData.pdfBase64,
+        model,
+        eventName,
+        eventDate,
+        affiliation,
+        presenterName,
+      }),
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.error || "Marp Markdownの生成に失敗しました。");
+    }
+
+    slidesOutputElement.value = data.output;
+    setSlidesStatus(`完了: ${data.model} でMarp Markdownを生成しました。`, false);
+    document.dispatchEvent(new Event("step2:updated"));
+  } catch (error) {
+    slidesOutputElement.value = "エラーが発生しました。";
+    setSlidesStatus(error.message || "不明なエラーが発生しました。", true);
+  } finally {
+    setStep2Loading(false);
+  }
+});
+
+slidesCopyButton.addEventListener("click", async () => {
+  await step2Shared.copyOutput({
+    text: slidesOutputElement.value.trim(),
+    emptyMessage: "まだMarp Markdownはありません。",
+    onSuccess: () => setSlidesStatus("Marp Markdownをコピーしました。", false),
+    onError: (message) => setSlidesStatus(message, true),
+  });
+});
+
+slidesSaveButton.addEventListener("click", async () => {
+  await step2Shared.saveMarkdownToData({
+    baseName: step2Shared.slidesBaseNameInput.value.trim(),
+    suffix: "step2",
+    text: slidesOutputElement.value.trim(),
+    onSuccess: (savedPath, normalizedBaseName) => {
+      step2Shared.slidesBaseNameInput.value = normalizedBaseName;
+      setSlidesStatus(`${savedPath} に保存しました。`, false);
+    },
+    onError: (message) => setSlidesStatus(message, true),
+  });
+});
+
+function bootstrapStep2() {
+  if (!eventDateInput.value.trim()) {
+    eventDateInput.value = step2Shared.formatToday();
+  }
+}
+
+function setStep2Loading(isLoading) {
+  slidesSubmitButton.disabled = isLoading;
+  slidesCopyButton.disabled = isLoading;
+  slidesSaveButton.disabled = isLoading;
+  step2Shared.slidePdfFileInput.disabled = isLoading;
+  step2Shared.slidesBaseNameInput.disabled = isLoading;
+  eventNameInput.disabled = isLoading;
+  eventDateInput.disabled = isLoading;
+  affiliationInput.disabled = isLoading;
+  presenterNameInput.disabled = isLoading;
+  step2Shared.slideSourceInput.disabled = isLoading;
+  slideFlowInput.disabled = isLoading;
+}
+
+function setSlidesStatus(message, isError) {
+  slidesStatusElement.textContent = message;
+  slidesStatusElement.dataset.error = isError ? "true" : "false";
+}

@@ -1,0 +1,54 @@
+[
+  {
+    "placeholder": "監視カメラで撮影された、白飛びや低解像度で文字が読みにくいナンバープレート画像の例を入れる",
+    "found": false
+  },
+  {
+    "placeholder": "論文 図2.9を基に、(a)補正前、(b)従来(SSR)、(d)提案(Retinex)の3つの画像を並べて比較する図を入れる",
+    "found": true,
+    "pageNumber": 8,
+    "figureLabel": "図2.9",
+    "captionText": "謝辞 ······························································································· 129",
+    "imagePath": "sample-step3-assets/figure-02.png",
+    "widthHint": 640,
+    "detectionMethod": "fallback-caption-crop",
+    "detectedLabel": "",
+    "box2d": null
+  },
+  {
+    "placeholder": "論文 図3.10を基に、(a)従来超解像、(b)提案超解像の2画像を並べて比較する図を入れる",
+    "found": true,
+    "pageNumber": 10,
+    "figureLabel": "図3.10",
+    "captionText": "ᅗ 3.10 超解像画像ࡢ例 (a) 従来超解像ࡢ画像， (b) 提案超解像ࡢ画像 ····· 59",
+    "imagePath": "sample-step3-assets/figure-03.png",
+    "widthHint": 640,
+    "detectionMethod": "fallback-caption-crop",
+    "detectedLabel": "",
+    "box2d": null
+  },
+  {
+    "placeholder": "論文 図4.5(a)を簡略化した多重構造CNNの模式図を入れる",
+    "found": true,
+    "pageNumber": 6,
+    "figureLabel": "図4.5",
+    "captionText": "3.2.2 ࢧࣈࣆࢡࢭࣝ఩置合わࡢࡏ方法 ·············································· 45",
+    "imagePath": "sample-step3-assets/figure-04.png",
+    "widthHint": 640,
+    "detectionMethod": "fallback-caption-crop",
+    "detectedLabel": "",
+    "box2d": null
+  },
+  {
+    "placeholder": "論文 図5.17のグラフを入れる",
+    "found": true,
+    "pageNumber": 11,
+    "figureLabel": "図5.17",
+    "captionText": "ᅗ 5.17 候補数࡞必要࡟ࡢࡿ得ࢆṇ答 ················································· 109",
+    "imagePath": "sample-step3-assets/figure-05.png",
+    "widthHint": 640,
+    "detectionMethod": "fallback-caption-crop",
+    "detectedLabel": "",
+    "box2d": null
+  }
+]

@@ -134,17 +134,68 @@
         </div>
         <div class="save-row">
           <label class="field save-field">
-            <span>data/ に保存する名前</span>
-            <input id="slides-file-name" name="slides-file-name" type="text" placeholder="sample" />
+            <span>保存ベース名</span>
+            <input id="slides-base-name" name="slides-base-name" type="text" placeholder="sample" />
           </label>
-          <button id="slides-save-button" type="button" class="secondary-button">data/~~~.md として保存</button>
+          <button id="slides-save-button" type="button" class="secondary-button">data/~~~-step2.md として保存</button>
         </div>
-        <pre id="slides-output" class="output">まだMarp Markdownはありません。</pre>
+        <label class="field">
+          <span>Step 2のMarkdown（編集可）</span>
+          <textarea id="slides-output" class="output-editor" rows="18" spellcheck="false">まだMarp Markdownはありません。</textarea>
+        </label>
+      </section>
+
+      <section class="panel">
+        <div class="panel-heading">
+          <p class="step-label">Step 3</p>
+          <h2>図を抽出してから画像付き版を再生成する</h2>
+        </div>
+        <p class="helper-text">
+          まずStep 2の `[図: ...]` プレースホルダを手がかりに論文PDFから図を抽出し、
+          その抽出結果を確認したうえで、画像付きのMarp Markdownを再生成します。
+        </p>
+        <label class="field">
+          <span>Step 3で参照するPDFファイル</span>
+          <input id="step3-pdf-file" name="step3-pdf-file" type="file" accept="application/pdf" />
+        </label>
+        <div class="button-row">
+          <button id="step3-extract-button" type="button">1. 図を抽出する</button>
+          <button id="step3-regenerate-button" type="button">2. 抽出結果で再生成する</button>
+        </div>
+        <div class="status-wrap">
+          <p id="step3-status" class="status">Step 3専用PDFを選んで図抽出し、その結果を使って再生成します。未選択ならStep 2のPDFを使います。</p>
+        </div>
+      </section>
+
+      <section class="panel output-panel">
+        <div class="output-header">
+          <h2>Step 3の図抽出結果</h2>
+        </div>
+        <label class="field">
+          <span>抽出した図の情報（編集可JSON）</span>
+          <textarea id="step3-figures-output" class="output-editor" rows="12" spellcheck="false">まだ図抽出はありません。</textarea>
+        </label>
+      </section>
+
+      <section class="panel output-panel">
+        <div class="output-header">
+          <h2>Step 3の出力</h2>
+          <div class="button-row">
+            <button id="step3-copy-button" type="button" class="secondary-button">コピー</button>
+            <button id="step3-save-button" type="button" class="secondary-button">data/~~~-step3.md として保存</button>
+          </div>
+        </div>
+        <label class="field">
+          <span>Step 3のMarkdown（編集可）</span>
+          <textarea id="step3-output" class="output-editor" rows="18" spellcheck="false">まだ画像付き版のMarkdownはありません。</textarea>
+        </label>
       </section>
     </main>
 
     <script src="/pdf-utils.js"></script>
     <script src="/app.js"></script>
-    <script src="/slide-generator.js"></script>
+    <script src="/slide-shared.js"></script>
+    <script src="/step2.js"></script>
+    <script src="/step3.js"></script>
   </body>
 </html>

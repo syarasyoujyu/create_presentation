@@ -3,11 +3,15 @@ sudo apt install fonts-noto
 npm install -g @marp-team/marp-cli
 sudo apt install chromium-browser
 export CHROME_PATH=$(which chromium-browser)
-
+sudo apt install libreoffice
+sudo apt install fonts-noto-cjk
+sudo apt install fonts-noto
+sudo fc-cache -fv
 
 #アプリ用
 node server.js
 
 #marp出力結果をpptx or pdfに変換
-marp --pdf sample.md
-marp --pptx sample.md
+cd data
+marp --pdf sample-step2.md  --allow-local-files
+marp --pptx --pptx-editable sample-step3.md  --allow-local-files

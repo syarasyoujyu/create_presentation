@@ -9,5 +9,8 @@
   },
   "devDependencies": {
     "@marp-team/marp-cli": "^4.3.1"
+  },
+  "dependencies": {
+    "pdfjs-dist": "^5.6.205"
   }
 }
