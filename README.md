@@ -11,8 +11,8 @@ arXiv論文のPDFをローカルで読み込み、Geminiで要約し、その結
 - Step 1の結果や手入力メモを補助情報として渡せる
 - 自分で決めたスライドの流れ・章立ても指定可能
 - Step 2 / Step 3 の出力Markdownを画面上で直接編集可能
-- Marp Markdownのコピーと、`data/<base>-step2.md` / `data/<base>-step3.md` への保存
-
+- Marp Markdownのコピーと、`data/<base>-step2.md` / `data/<base>-step3.md` への保存  
+※step3に関しては、今のところ失敗しています(なので、基本的に使わないことをお勧めします)
 ## 起動方法
 
 1. `.env.example` を `.env` にコピーして `GEMINI_API_KEY` を設定
