@@ -1,7 +1,10 @@
 const http = require("http");
 const fs = require("fs");
 const path = require("path");
-const { buildSlidePrompt } = require("./prompts/build-slide-prompt");
+const {
+  buildSlidePrompt,
+  buildFixedSlidePrefix,
+} = require("./prompts/build-slide-prompt");
 const { buildStep3Prompt } = require("./prompts/build-step3-prompt");
 const { extractFiguresFromPdf } = require("./lib/pdf-figure-extractor");
 
@@ -142,6 +145,7 @@ async function handleSlideGeneration(req, res) {
   const eventDate = String(body.eventDate || "").trim() || formatDateForSlide(new Date());
   const affiliation = String(body.affiliation || "所属未入力").trim() || "所属未入力";
   const presenterName = String(body.presenterName || "発表者未入力").trim() || "発表者未入力";
+  const title = String(body.slideTitle || "").trim() || deriveSlideTitle(fileName);
 
   if (!pdfBase64) {
     return sendJson(res, 400, {
@@ -163,6 +167,7 @@ async function handleSlideGeneration(req, res) {
     eventDate,
     affiliation,
     presenterName,
+    title,
   });
 
   const output = await generateGeminiText({
@@ -183,7 +188,13 @@ async function handleSlideGeneration(req, res) {
 
   return sendJson(res, 200, {
     model,
-    output: normalizeMarpOutput(output),
+    output: buildFixedSlidePrefix({
+      eventName,
+      eventDate,
+      affiliation,
+      presenterName,
+      title,
+    }) + normalizeStep2BodyOutput(output),
   });
 }
 
@@ -194,12 +205,13 @@ async function handleSaveSlide(req, res) {
     return;
   }
 
-  const rawFileName = String(body.fileName || "").trim();
+  const rawBaseName = String(body.baseName || "").trim();
+  const rawSuffix = String(body.suffix || "").trim().toLowerCase();
   const content = String(body.content || "");
 
-  if (!rawFileName) {
+  if (!rawBaseName) {
     return sendJson(res, 400, {
-      error: "保存ファイル名を入力してください。",
+      error: "保存ベース名を入力してください。",
     });
   }
 
@@ -209,20 +221,29 @@ async function handleSaveSlide(req, res) {
     });
   }
 
-  const fileName = ensureMarkdownExtension(sanitizeFileName(rawFileName));
+  if (!["step2", "step3"].includes(rawSuffix)) {
+    return sendJson(res, 400, {
+      error: "保存対象は step2 または step3 のみです。",
+    });
+  }
 
-  if (!fileName) {
+  const baseName = sanitizeFileName(rawBaseName);
+  const fileName = ensureMarkdownExtension(rawSuffix);
+
+  if (!baseName || !fileName) {
     return sendJson(res, 400, {
       error: "利用できないファイル名です。記号を減らして別の名前を試してください。",
     });
   }
 
-  fs.mkdirSync(DATA_DIR, { recursive: true });
-  const filePath = path.join(DATA_DIR, fileName);
+  const targetDir = path.join(DATA_DIR, baseName);
+  fs.mkdirSync(targetDir, { recursive: true });
+  const filePath = path.join(targetDir, fileName);
   fs.writeFileSync(filePath, content, "utf8");
 
   return sendJson(res, 200, {
     ok: true,
+    baseName,
     fileName,
     savedPath: path.relative(ROOT_DIR, filePath),
   });
@@ -270,14 +291,16 @@ async function handleFigureExtraction(req, res) {
   }
 
   const baseName = sanitizeFileName(rawBaseName) || "sample";
-  const assetDirName = `${baseName}-step3-assets`;
-  const assetDirPath = path.join(DATA_DIR, assetDirName);
+  const baseDirPath = path.join(DATA_DIR, baseName);
+  const assetDirName = "step3-assets";
+  const assetDirPath = path.join(baseDirPath, assetDirName);
+  fs.mkdirSync(baseDirPath, { recursive: true });
   fs.rmSync(assetDirPath, { recursive: true, force: true });
   const extractedFigures = await extractFiguresFromPdf({
     placeholders,
     extractedPages,
     outputDir: assetDirPath,
-    assetPathPrefix: `../data/${assetDirName}`,
+    assetPathPrefix: `./${assetDirName}`,
     apiKey,
     model,
   });
@@ -569,7 +592,7 @@ function extractTextFromGemini(responseJson) {
 }
 
 function normalizeMarpOutput(output) {
-  let trimmed = output.trim();
+  let trimmed = stripMarkdownCodeFence(output);
   const standardFrontmatterLines = [
     "marp: true",
     "theme: kaira",
@@ -579,18 +602,12 @@ function normalizeMarpOutput(output) {
     "paginate: true",
   ];
 
-  if (trimmed.startsWith("```")) {
-    trimmed = trimmed
-      .replace(/^```[a-zA-Z0-9_-]*\n?/, "")
-      .replace(/\n?```$/, "")
-      .trim();
-  }
+  const leadingBlocks = collectLeadingFrontmatterBlocks(trimmed);
 
-  const frontmatterMatch = trimmed.match(/^---\r?\n([\s\S]*?)\r?\n---\r?\n?/);
-
-  if (frontmatterMatch) {
-    const body = trimmed.slice(frontmatterMatch[0].length).trimStart();
-    const extraLines = frontmatterMatch[1]
+  if (leadingBlocks.length > 0) {
+    const [firstBlock] = leadingBlocks;
+    const body = trimmed.slice(leadingBlocks[leadingBlocks.length - 1].endIndex).trimStart();
+    const extraLines = firstBlock.content
       .split(/\r?\n/)
       .map((line) => line.trimEnd())
       .filter((line) => {
@@ -615,11 +632,93 @@ function normalizeMarpOutput(output) {
   return normalizeInlineReferences(trimmed);
 }
 
+function normalizeStep2BodyOutput(output) {
+  let trimmed = stripMarkdownCodeFence(output);
+  const leadingBlocks = collectLeadingFrontmatterBlocks(trimmed);
+
+  if (leadingBlocks.length > 0) {
+    trimmed = trimmed.slice(leadingBlocks[leadingBlocks.length - 1].endIndex).trimStart();
+  }
+
+  const agendaMatch = trimmed.match(/<!--\s*class:\s*agenda(?:\s+show-page)?\s*-->/i);
+
+  if (agendaMatch && typeof agendaMatch.index === "number") {
+    trimmed = trimmed.slice(agendaMatch.index).trimStart();
+  } else {
+    const titleMatch = trimmed.match(/<!--\s*class:\s*title\s*-->/i);
+
+    if (titleMatch && typeof titleMatch.index === "number") {
+      const afterTitle = trimmed.slice(titleMatch.index);
+      const separatorMatch = afterTitle.match(/\n---\s*\n/);
+
+      if (separatorMatch && typeof separatorMatch.index === "number") {
+        trimmed = afterTitle.slice(separatorMatch.index + separatorMatch[0].length).trimStart();
+      }
+    }
+  }
+
+  trimmed = trimmed.replace(/^(?:---\s*\n)+/, "").trimStart();
+  return normalizeInlineReferences(trimmed);
+}
+
 function normalizeInlineReferences(markdown) {
   return markdown.replace(
     /(?<![\w>])((?:論文\s*)?[図表式]\s*\d+(?:\.\d+)*)/gu,
     (match) => `<span class="ref-inline">${match.replace(/\s+/gu, "")}</span>`
   );
+}
+
+function stripMarkdownCodeFence(output) {
+  let trimmed = String(output || "").trim();
+
+  if (trimmed.startsWith("```")) {
+    trimmed = trimmed
+      .replace(/^```[a-zA-Z0-9_-]*\n?/, "")
+      .replace(/\n?```$/, "")
+      .trim();
+  }
+
+  return trimmed;
+}
+
+function collectLeadingFrontmatterBlocks(markdown) {
+  const blocks = [];
+  let remaining = markdown;
+  let offset = 0;
+
+  while (true) {
+    const match = remaining.match(/^---\r?\n([\s\S]*?)\r?\n---\r?\n?/);
+
+    if (!match) {
+      break;
+    }
+
+    const endIndex = offset + match[0].length;
+    blocks.push({
+      content: match[1],
+      endIndex,
+    });
+    remaining = remaining.slice(match[0].length);
+    offset = endIndex;
+
+    const whitespaceMatch = remaining.match(/^\s*/);
+    const whitespaceLength = whitespaceMatch ? whitespaceMatch[0].length : 0;
+    remaining = remaining.slice(whitespaceLength);
+    offset += whitespaceLength;
+  }
+
+  return blocks;
+}
+
+function deriveSlideTitle(fileName) {
+  const baseName = path.basename(String(fileName || "paper.pdf"), path.extname(String(fileName || "paper.pdf")));
+  const normalized = baseName
+    .normalize("NFKC")
+    .replace(/[_-]+/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+
+  return normalized || "タイトル未入力";
 }
 
 function formatDateForSlide(date) {

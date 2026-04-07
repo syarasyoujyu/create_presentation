@@ -13,6 +13,7 @@ function initializeStep3() {
   const step3CopyButton = document.getElementById("step3-copy-button");
   const step3SaveButton = document.getElementById("step3-save-button");
   const step3StatusElement = document.getElementById("step3-status");
+  const step3OutputStatusElement = document.getElementById("step3-output-status");
   const step3FiguresOutputElement = document.getElementById("step3-figures-output");
   const step3OutputElement = document.getElementById("step3-output");
 
@@ -25,6 +26,7 @@ function initializeStep3() {
     !step3CopyButton ||
     !step3SaveButton ||
     !step3StatusElement ||
+    !step3OutputStatusElement ||
     !step3FiguresOutputElement ||
     !step3OutputElement
   ) {
@@ -37,6 +39,7 @@ function initializeStep3() {
       hasCopyButton: Boolean(step3CopyButton),
       hasSaveButton: Boolean(step3SaveButton),
       hasStatus: Boolean(step3StatusElement),
+      hasOutputStatus: Boolean(step3OutputStatusElement),
       hasFiguresOutput: Boolean(step3FiguresOutputElement),
       hasStep3Output: Boolean(step3OutputElement),
     });
@@ -69,6 +72,7 @@ function initializeStep3() {
 
     setStep3Loading({ extracting: true, regenerating: false });
     setStep3Status("図プレースホルダをもとに、論文PDFから図を抽出しています...", false);
+    setStep3OutputStatus("", false);
     step3FiguresOutputElement.value = "図抽出を実行しています...";
     step3OutputElement.value = "まだ画像付き版のMarkdownはありません。";
 
@@ -127,6 +131,7 @@ function initializeStep3() {
 
     setStep3Loading({ extracting: false, regenerating: true });
     setStep3Status("抽出結果を使って、画像付き版のMarp Markdownを再生成しています...", false);
+    setStep3OutputStatus("", false);
     step3OutputElement.value = "Step 3を再生成しています...";
 
     try {
@@ -162,8 +167,8 @@ function initializeStep3() {
     await step3Shared.copyOutput({
       text: step3OutputElement.value.trim(),
       emptyMessage: "まだ画像付き版のMarkdownはありません。",
-      onSuccess: () => setStep3Status("Step 3のMarkdownをコピーしました。", false),
-      onError: (message) => setStep3Status(message, true),
+      onSuccess: () => setStep3OutputStatus("Step 3のMarkdownをコピーしました。", false),
+      onError: (message) => setStep3OutputStatus(message, true),
     });
   });
 
@@ -174,9 +179,9 @@ function initializeStep3() {
       text: step3OutputElement.value.trim(),
       onSuccess: (savedPath, normalizedBaseName) => {
         step3Shared.slidesBaseNameInput.value = normalizedBaseName;
-        setStep3Status(`${savedPath} に保存しました。`, false);
+        setStep3OutputStatus(`${savedPath} に保存しました。`, false);
       },
-      onError: (message) => setStep3Status(message, true),
+      onError: (message) => setStep3OutputStatus(message, true),
     });
   });
 
@@ -236,5 +241,10 @@ function initializeStep3() {
   function setStep3Status(message, isError) {
     step3StatusElement.textContent = message;
     step3StatusElement.dataset.error = isError ? "true" : "false";
+  }
+
+  function setStep3OutputStatus(message, isError) {
+    step3OutputStatusElement.textContent = message;
+    step3OutputStatusElement.dataset.error = isError ? "true" : "false";
   }
 }

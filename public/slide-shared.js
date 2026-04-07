@@ -114,7 +114,8 @@ async function saveMarkdownToData({ baseName, suffix, text, onSuccess, onError }
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        fileName: `${baseName}-${suffix}`,
+        baseName,
+        suffix,
         content: text,
       }),
     });
@@ -125,7 +126,7 @@ async function saveMarkdownToData({ baseName, suffix, text, onSuccess, onError }
       throw new Error(data.error || "data/ への保存に失敗しました。");
     }
 
-    onSuccess(data.savedPath, data.fileName.replace(new RegExp(`-${suffix}\\.md$`, "i"), ""));
+    onSuccess(data.savedPath, data.baseName);
   } catch (error) {
     onError(error.message || "不明なエラーが発生しました。");
   }

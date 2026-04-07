@@ -87,6 +87,11 @@
             </label>
           </div>
 
+          <label class="field">
+            <span>発表タイトル</span>
+            <input id="slide-title" name="slide-title" type="text" placeholder="畳み込みニューラルネットワーク入門" />
+          </label>
+
           <div class="two-field-grid">
             <label class="field">
               <span>所属</span>
@@ -132,12 +137,15 @@
             <button id="slides-copy-button" type="button" class="secondary-button">コピー</button>
           </div>
         </div>
+        <div class="status-wrap output-status-wrap">
+          <p id="slides-output-status" class="status"></p>
+        </div>
         <div class="save-row">
           <label class="field save-field">
             <span>保存ベース名</span>
             <input id="slides-base-name" name="slides-base-name" type="text" placeholder="sample" />
           </label>
-          <button id="slides-save-button" type="button" class="secondary-button">data/~~~-step2.md として保存</button>
+          <button id="slides-save-button" type="button" class="secondary-button">data/~~~/step2.md として保存</button>
         </div>
         <label class="field">
           <span>Step 2のMarkdown（編集可）</span>
@@ -182,8 +190,11 @@
           <h2>Step 3の出力</h2>
           <div class="button-row">
             <button id="step3-copy-button" type="button" class="secondary-button">コピー</button>
-            <button id="step3-save-button" type="button" class="secondary-button">data/~~~-step3.md として保存</button>
+            <button id="step3-save-button" type="button" class="secondary-button">data/~~~/step3.md として保存</button>
           </div>
+        </div>
+        <div class="status-wrap output-status-wrap">
+          <p id="step3-output-status" class="status"></p>
         </div>
         <label class="field">
           <span>Step 3のMarkdown（編集可）</span>

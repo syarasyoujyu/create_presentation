@@ -3,10 +3,12 @@ const step2Shared = window.slideAppShared;
 const slidesForm = document.getElementById("slides-form");
 const eventNameInput = document.getElementById("event-name");
 const eventDateInput = document.getElementById("event-date");
+const slideTitleInput = document.getElementById("slide-title");
 const affiliationInput = document.getElementById("affiliation");
 const presenterNameInput = document.getElementById("presenter-name");
 const slideFlowInput = document.getElementById("slide-flow");
 const slidesStatusElement = document.getElementById("slides-status");
+const slidesOutputStatusElement = document.getElementById("slides-output-status");
 const slidesOutputElement = document.getElementById("slides-output");
 const slidesSubmitButton = document.getElementById("slides-submit-button");
 const slidesCopyButton = document.getElementById("slides-copy-button");
@@ -20,11 +22,13 @@ slidesForm.addEventListener("submit", async (event) => {
   const analysis = step2Shared.slideSourceInput.value.trim();
   const slideFlow = slideFlowInput.value.trim();
   const model = step2Shared.modelField.value.trim();
+  const file = step2Shared.getStep2PdfFile();
   const eventName = eventNameInput.value.trim() || "論文紹介";
   const eventDate = eventDateInput.value.trim() || step2Shared.formatToday();
+  const slideTitle =
+    slideTitleInput.value.trim() || inferSlideTitleFromFile(file) || "タイトル未入力";
   const affiliation = affiliationInput.value.trim() || "所属未入力";
   const presenterName = presenterNameInput.value.trim() || "発表者未入力";
-  const file = step2Shared.getStep2PdfFile();
 
   if (!file) {
     setSlidesStatus("Step 2用のPDFファイルを選んでください。", true);
@@ -33,6 +37,7 @@ slidesForm.addEventListener("submit", async (event) => {
 
   setStep2Loading(true);
   setSlidesStatus("PDFを参照しながらMarp Markdownを生成しています...", false);
+  setSlidesOutputStatus("", false);
   slidesOutputElement.value = "Geminiがスライド原稿を組み立てています...";
 
   try {
@@ -51,6 +56,7 @@ slidesForm.addEventListener("submit", async (event) => {
         model,
         eventName,
         eventDate,
+        slideTitle,
         affiliation,
         presenterName,
       }),
@@ -77,8 +83,8 @@ slidesCopyButton.addEventListener("click", async () => {
   await step2Shared.copyOutput({
     text: slidesOutputElement.value.trim(),
     emptyMessage: "まだMarp Markdownはありません。",
-    onSuccess: () => setSlidesStatus("Marp Markdownをコピーしました。", false),
-    onError: (message) => setSlidesStatus(message, true),
+    onSuccess: () => setSlidesOutputStatus("Marp Markdownをコピーしました。", false),
+    onError: (message) => setSlidesOutputStatus(message, true),
   });
 });
 
@@ -89,9 +95,9 @@ slidesSaveButton.addEventListener("click", async () => {
     text: slidesOutputElement.value.trim(),
     onSuccess: (savedPath, normalizedBaseName) => {
       step2Shared.slidesBaseNameInput.value = normalizedBaseName;
-      setSlidesStatus(`${savedPath} に保存しました。`, false);
+      setSlidesOutputStatus(`${savedPath} に保存しました。`, false);
     },
-    onError: (message) => setSlidesStatus(message, true),
+    onError: (message) => setSlidesOutputStatus(message, true),
   });
 });
 
@@ -99,6 +105,20 @@ function bootstrapStep2() {
   if (!eventDateInput.value.trim()) {
     eventDateInput.value = step2Shared.formatToday();
   }
+
+  step2Shared.slidePdfFileInput.addEventListener("change", () => {
+    if (slideTitleInput.value.trim()) {
+      return;
+    }
+
+    const file = step2Shared.getStep2PdfFile();
+
+    if (!file) {
+      return;
+    }
+
+    slideTitleInput.value = inferSlideTitleFromFile(file);
+  });
 }
 
 function setStep2Loading(isLoading) {
@@ -109,6 +129,7 @@ function setStep2Loading(isLoading) {
   step2Shared.slidesBaseNameInput.disabled = isLoading;
   eventNameInput.disabled = isLoading;
   eventDateInput.disabled = isLoading;
+  slideTitleInput.disabled = isLoading;
   affiliationInput.disabled = isLoading;
   presenterNameInput.disabled = isLoading;
   step2Shared.slideSourceInput.disabled = isLoading;
@@ -118,4 +139,22 @@ function setStep2Loading(isLoading) {
 function setSlidesStatus(message, isError) {
   slidesStatusElement.textContent = message;
   slidesStatusElement.dataset.error = isError ? "true" : "false";
+}
+
+function setSlidesOutputStatus(message, isError) {
+  slidesOutputStatusElement.textContent = message;
+  slidesOutputStatusElement.dataset.error = isError ? "true" : "false";
+}
+
+function inferSlideTitleFromFile(file) {
+  if (!file?.name) {
+    return "";
+  }
+
+  return file.name
+    .replace(/\.[^.]+$/, "")
+    .normalize("NFKC")
+    .replace(/[_-]+/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
 }

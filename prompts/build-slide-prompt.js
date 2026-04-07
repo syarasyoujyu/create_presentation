@@ -4,6 +4,41 @@ const path = require("path");
 const templatePath = path.join(__dirname, "marp-template.md");
 const marpTemplate = fs.readFileSync(templatePath, "utf8");
 
+function buildFixedSlidePrefix({
+  eventName,
+  eventDate,
+  affiliation,
+  presenterName,
+  title,
+}) {
+  return [
+    "---",
+    "marp: true",
+    "theme: kaira",
+    "size: 16:9",
+    "math: katex",
+    "highlight: github",
+    "paginate: true",
+    "---",
+    "",
+    "<!-- class: title -->",
+    "",
+    '<div class="logo"></div>',
+    `<div class="subtitle">${escapeHtml(`${eventName} ${eventDate}`)}</div>`,
+    `<div class="maintitle">${escapeHtml(title)}</div>`,
+    "",
+    '<div class="bottom-band">',
+    '  <div style="width: 100%;">',
+    `    <div class="name-box">${escapeHtml(affiliation)}</div>`,
+    `    <div class="name-box">${escapeHtml(presenterName)}</div>`,
+    "  </div>",
+    "</div>",
+    "",
+    "---",
+    "",
+  ].join("\n");
+}
+
 function buildSlidePrompt({
   analysis,
   slideFlow,
@@ -12,6 +47,7 @@ function buildSlidePrompt({
   eventDate,
   affiliation,
   presenterName,
+  title,
 }) {
   return `あなたは、研究論文をもとにMarpスライドを作る専門家です。
 入力される論文PDF、論文要約、発表メモ、希望するスライドの流れを読み取り、発表用のMarp Markdownを日本語で生成してください。
@@ -24,14 +60,20 @@ function buildSlidePrompt({
 最重要ルール:
 - 出力は Marp Markdown のみ
 - 説明文、前置き、注釈、コードフェンスは一切不要
-- 先頭には必ず frontmatter を含める
+- frontmatter は出力しない
 - <style> タグは出力しない
 - スライド区切りは --- を使う
-- 1枚目は必ずタイトルスライド
-- 2枚目は必ずアジェンダ
-- 3枚目以降は <!-- class: content-gray show-page --> を使う
+- 1枚目のタイトルスライドはアプリ側で固定挿入するため、あなたは出力しない
+- あなたの出力は 2枚目のアジェンダスライドから開始する
+- 最初のスライドは必ず <!-- class: agenda show-page --> で始める
+- 2枚目以降の本文は <!-- class: content-gray show-page --> を使う
 - テンプレートのCSSクラス名は変更しない
 - 数式は Markdown の数式記法を使い、HTMLブロックの中には極力書かない
+- 数式を含むスライドでは、div / span / p などのHTMLブロック内に数式を書いてはいけない
+- 数式を含むスライドでは、two-col や two-top-one-bottom などのHTMLレイアウトを使わず、Markdownだけで組む
+- 定理・補題・定義・補足のように囲みたい内容は、HTMLではなく引用ブロック (>) を使う
+- ブロック数式は必ず $$ ... $$ を単独のMarkdownブロックとして置く
+- インライン数式は通常の文章中で $ ... $ を使い、HTMLタグで囲まない
 - レイアウトは Marp 標準の Markdown を優先し、h1 / h2 / p / ul / ol / table を中心に構成する
 - 見た目を整えるための複雑な div の入れ子や、細かい absolute 配置のHTMLは極力使わない
 - 画像が必要だが実画像を埋め込めない場合は [図: ここに〇〇の図を入れる] のようなプレースホルダを書く
@@ -53,30 +95,29 @@ function buildSlidePrompt({
 - 希望する流れが論文PDFの内容とずれる場合は、論文内容に沿うように穏当に補正する
 
 標準のスライド構成:
-1. タイトル
-2. アジェンダ
-3. 研究背景
-4. 解決したい課題
-5. 提案手法の全体像
-6. 手法の詳細1
-7. 手法の詳細2 または 数式・アルゴリズムの要点
-8. 実験設定
-9. 結果
-10. 考察
-11. 限界・今後の課題
-12. まとめ
+1. アジェンダ
+2. 研究背景
+3. 解決したい課題
+4. 提案手法の全体像
+5. 手法の詳細1
+6. 手法の詳細2 または 数式・アルゴリズムの要点
+7. 実験設定
+8. 結果
+9. 考察
+10. 限界・今後の課題
+11. まとめ
 
 スライド作成ルール:
-- タイトルスライドでは以下を埋める
+- タイトルスライドはアプリ側で以下の内容を使って固定生成するため、再出力しない
   - イベント名: ${eventName}
   - 日付: ${eventDate}
   - 所属: ${affiliation}
   - 名前: ${presenterName}
-- タイトルスライドは <!-- class: title --> を使い、テンプレートにある各ブロックへ内容を入れる
-- 発表タイトルは論文内容をもとに自然な日本語タイトルへ必要に応じて調整してよい
+  - タイトル: ${title}
 - アジェンダは <!-- class: agenda show-page --> を使い、テンプレートにある agenda-item を4〜6項目へ増やしてよい
 - 本文スライドは <!-- class: content-gray show-page --> を使う
 - 提案手法は、必要なら two-col や two-top-one-bottom を使って整理してよい
+- ただし、数式を置くスライドでは HTMLレイアウトを使わず、必要なら引用ブロックで囲む
 - 結果スライドでは、比較対象・評価指標・何が改善したかを必ず明記
 - 最終スライドのまとめでは、貢献を3点以内で簡潔に述べる
 
@@ -88,10 +129,25 @@ function buildSlidePrompt({
 - 数字・比較・改善点を優先して書く
 - 冗長な導入は避ける
 
-以下のテンプレートを必ず先頭からそのまま使い、その後に各スライド内容を埋めて完成版を出力してください。
-テンプレート外の style 情報はすべて固定CSS側で管理しているため、style を新たに出力してはいけません。
+以下の固定済み先頭部分はアプリ側ですでに挿入します。
+あなたはこの続きだけを出力してください。
+- frontmatter を再出力しない
+- タイトルスライドを再出力しない
+- 最初に出すのは agenda スライド
+- 出力先頭に余計な --- を置かない
+- テンプレート外の style 情報はすべて固定CSS側で管理しているため、style を新たに出力してはいけません。
 
-${marpTemplate}
+${buildFixedSlidePrefix({
+  eventName,
+  eventDate,
+  affiliation,
+  presenterName,
+  title,
+})}
+
+参考テンプレート（あなたが続きとして合わせるべき構造）:
+
+${extractBodyTemplate(marpTemplate)}
 
 以下の論文PDFもあわせて参照してください。
 - ファイル名: ${fileName || "paper.pdf"}
@@ -105,6 +161,25 @@ ${analysis || "指定なし"}
 ${slideFlow || "指定なし"}`;
 }
 
+function extractBodyTemplate(template) {
+  const marker = "<!-- class: agenda show-page -->";
+  const index = template.indexOf(marker);
+
+  if (index === -1) {
+    return template;
+  }
+
+  return template.slice(index).trimStart();
+}
+
+function escapeHtml(text) {
+  return String(text)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;");
+}
+
 module.exports = {
   buildSlidePrompt,
+  buildFixedSlidePrefix,
 };

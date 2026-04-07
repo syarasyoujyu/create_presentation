@@ -299,6 +299,37 @@ section.content-gray p {
   margin: 0 0 10px 0;
 }
 
+section.content-gray .katex {
+  font-size: 1.02em;
+}
+
+section.content-gray .katex-display {
+  margin: 0.45em 0 0.7em 0;
+}
+
+section.content-gray blockquote {
+  margin: 14px 0;
+  padding: 12px 18px 14px;
+  border: 2px solid #b9d7ea;
+  border-radius: 10px;
+  background: #eef7fb;
+  color: #111111;
+  box-shadow: 0 2px 6px rgba(11, 75, 120, 0.08);
+}
+
+section.content-gray blockquote > p:first-child {
+  margin-bottom: 8px;
+  padding: 4px 10px;
+  border-radius: 6px;
+  background: var(--kaira-blue);
+  color: #ffffff;
+  font-weight: 700;
+}
+
+section.content-gray blockquote > p:last-child {
+  margin-bottom: 0;
+}
+
 section.content-gray :is(pre, marp-pre) {
   margin: 8px 0 0 0;
   display: block;

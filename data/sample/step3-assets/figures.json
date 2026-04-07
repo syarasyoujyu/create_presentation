@@ -1,0 +1,73 @@
+[
+  {
+    "placeholder": "Figure 1. 全結合型ニューラルネットワーク(FNN)の基本構造",
+    "found": false,
+    "pageNumber": 1,
+    "figureLabel": "Figure 1",
+    "captionText": "arXiv:1511.08458v2 [cs.NE] 2 Dec 2015 The basic structure of a ANN can be modelled as shown in Figure 1. We would load the input, usually in the form of a multidimensional vector to the input"
+  },
+  {
+    "placeholder": "Figure 2. MNIST分類のためのシンプルなCNNアーキテクチャ",
+    "found": true,
+    "pageNumber": 4,
+    "figureLabel": "Figure 2",
+    "captionText": "CNN architecture has been formed. A simplified CNN architecture for MNIST classification is illustrated in Figure 2.",
+    "imagePath": "step3-assets/figure-02.png",
+    "widthHint": 520,
+    "detectionMethod": "single-image-page",
+    "detectedLabel": "",
+    "sourceImageIndex": 1,
+    "sourceSize": {
+      "width": 177,
+      "height": 177
+    }
+  },
+  {
+    "placeholder": "Figure 4. 畳み込み演算の図解",
+    "found": true,
+    "pageNumber": 5,
+    "figureLabel": "Figure 4",
+    "captionText": "Fig. 3: Activations taken from the first convolutional layer of a simplistic deep",
+    "imagePath": "step3-assets/figure-03.png",
+    "widthHint": 640,
+    "detectionMethod": "gemini-document-selection",
+    "detectedLabel": "Figure 4",
+    "sourceImageIndex": 1,
+    "sourceSize": {
+      "width": 838,
+      "height": 327
+    }
+  },
+  {
+    "placeholder": "Figure 5. 複数の畳み込み層を重ねた、より一般的なCNNアーキテクチャ",
+    "found": true,
+    "pageNumber": 9,
+    "figureLabel": "Figure 5",
+    "captionText": "Another common CNN architecture is to stack two convolutional layers before each pooling layer, as illustrated in Figure 5. This is strongly recommended as",
+    "imagePath": "step3-assets/figure-04.png",
+    "widthHint": 520,
+    "detectionMethod": "single-image-page",
+    "detectedLabel": "",
+    "sourceImageIndex": 1,
+    "sourceSize": {
+      "width": 177,
+      "height": 177
+    }
+  },
+  {
+    "placeholder": "Figure 3. MNISTで学習したCNNの最初の畳み込み層のアクティベーション",
+    "found": true,
+    "pageNumber": 5,
+    "figureLabel": "Figure 3",
+    "captionText": "Fig. 3: Activations taken from the first convolutional layer of a simplistic deep",
+    "imagePath": "step3-assets/figure-05.png",
+    "widthHint": 640,
+    "detectionMethod": "gemini-document-selection",
+    "detectedLabel": "Figure 3",
+    "sourceImageIndex": 1,
+    "sourceSize": {
+      "width": 838,
+      "height": 327
+    }
+  }
+]

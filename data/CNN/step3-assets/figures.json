@@ -1,0 +1,64 @@
+[
+  {
+    "placeholder": "シンプルなCNNアーキテクチャ (論文 Fig. 2)",
+    "found": false,
+    "pageNumber": null,
+    "figureLabel": "",
+    "captionText": ""
+  },
+  {
+    "placeholder": "畳み込み演算の概念図 (論文 Fig. 4)",
+    "found": true,
+    "pageNumber": 5,
+    "figureLabel": "",
+    "captionText": "Fig. 3: Activations taken from the first convolutional layer of a simplistic deep",
+    "imagePath": "step3-assets/figure-02.png",
+    "widthHint": 640,
+    "detectionMethod": "gemini-document-selection",
+    "detectedLabel": "畳み込み演算の概念図 (論文 Fig. 4)",
+    "sourceImageIndex": 1,
+    "sourceSize": {
+      "width": 838,
+      "height": 327
+    }
+  },
+  {
+    "placeholder": "従来のニューラルネットワーク構造 (論文 Fig. 1)",
+    "found": false,
+    "pageNumber": null,
+    "figureLabel": "",
+    "captionText": ""
+  },
+  {
+    "placeholder": "学習済みフィルタの可視化 (論文 Fig. 3)",
+    "found": true,
+    "pageNumber": 5,
+    "figureLabel": "",
+    "captionText": "Fig. 3: Activations taken from the first convolutional layer of a simplistic deep",
+    "imagePath": "step3-assets/figure-04.png",
+    "widthHint": 640,
+    "detectionMethod": "gemini-document-selection",
+    "detectedLabel": "学習済みフィルタの可視化 (論文 Fig. 3)",
+    "sourceImageIndex": 1,
+    "sourceSize": {
+      "width": 838,
+      "height": 327
+    }
+  },
+  {
+    "placeholder": "より実践的なCNNアーキテクチャ (論文 Fig. 5)",
+    "found": true,
+    "pageNumber": 5,
+    "figureLabel": "",
+    "captionText": "Fig. 3: Activations taken from the first convolutional layer of a simplistic deep",
+    "imagePath": "step3-assets/figure-05.png",
+    "widthHint": 640,
+    "detectionMethod": "gemini-document-selection",
+    "detectedLabel": "より実践的なCNNアーキテクチャ (論文 Fig. 5)",
+    "sourceImageIndex": 1,
+    "sourceSize": {
+      "width": 838,
+      "height": 327
+    }
+  }
+]
