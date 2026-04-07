@@ -272,11 +272,12 @@ async function handleFigureExtraction(req, res) {
   const baseName = sanitizeFileName(rawBaseName) || "sample";
   const assetDirName = `${baseName}-step3-assets`;
   const assetDirPath = path.join(DATA_DIR, assetDirName);
+  fs.rmSync(assetDirPath, { recursive: true, force: true });
   const extractedFigures = await extractFiguresFromPdf({
     placeholders,
     extractedPages,
     outputDir: assetDirPath,
-    assetPathPrefix: `./${assetDirName}`,
+    assetPathPrefix: `../data/${assetDirName}`,
     apiKey,
     model,
   });

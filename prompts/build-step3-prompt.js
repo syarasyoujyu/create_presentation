@@ -14,14 +14,15 @@ function buildStep3Prompt({ step2Markdown, extractedFigures }) {
 
 目的:
 - 入力される step2 の Marp Markdown をベースに、図プレースホルダを実画像に差し替えた step3 の Marp Markdown を生成する
-- frontmatter, style, class 指定、スライド順序は維持する
+- frontmatter, class 指定、スライド順序は維持する
 - 図が入ることで崩れやすい場合のみ、周辺テキストを少しだけ整理してよい
 
 最重要ルール:
 - 出力は Marp Markdown のみ
 - 説明文やコードフェンスは不要
-- step2 版の frontmatter と <style> はそのまま維持する
-- title / agenda / slides の class 指定と、h1 / h2 / p / ul の構造はできるだけ保つ
+- step2 版の frontmatter はそのまま維持する
+- 新たな <style> タグは追加しない
+- title / agenda / content-gray の class 指定と、h1 / h2 / p / ul の構造はできるだけ保つ
 - 図プレースホルダの置換対象は、提供された placeholder と一致する箇所のみ
 - 置換時は Marp の画像記法を使う
 - 基本は \`![w:WIDTH](./path/to/image.png)\` の形を使う

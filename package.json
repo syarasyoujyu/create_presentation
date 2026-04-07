@@ -11,6 +11,7 @@
     "@marp-team/marp-cli": "^4.3.1"
   },
   "dependencies": {
+    "@marp-team/marp-core": "^4.3.0",
     "pdfjs-dist": "^5.6.205"
   }
 }

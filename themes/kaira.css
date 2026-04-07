@@ -1,0 +1,405 @@
+/* @theme kaira */
+@import "default";
+
+/* ============ Variables ============ */
+:root {
+  --kaira-blue: #0b4b78;
+  --kaira-blue-dark: #083a5e;
+  --kaira-blue-text: #0b4b78;
+  --kaira-gray: #a8a8a8;
+  --kaira-gray-bg: #c9c9c9;
+  --kaira-white: #ffffff;
+  --kaira-logo-url: url("../templates/KaiRA_logo_blue_trans.png");
+  --kaira-logo-scale: 3;
+  --kaira-content-logo-reserve: calc(150px * var(--kaira-logo-scale));
+  --kaira-content-logo-box: calc(40px * var(--kaira-logo-scale));
+  --kaira-red: #c9342f;
+}
+
+/* ============ Base Layout ============ */
+section {
+  font-family: "Arial",
+  sans-serif;
+  color: #111111;
+  background: var(--kaira-white);
+  padding: 48px 80px;
+  box-sizing: border-box;
+}
+
+/* ============ Title Slide ============ */
+/* title: layout */
+section.title {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  position: relative;
+  padding-top: calc(60px * var(--kaira-logo-scale));
+}
+
+/* title: logo */
+section.title .logo {
+  position: absolute;
+  top: -20px;
+  width: calc(300px * var(--kaira-logo-scale));
+  height: calc(90px * var(--kaira-logo-scale));
+  margin: 0;
+  background-image: var(--kaira-logo-url);
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+}
+
+/* title: subtitle */
+section.title .subtitle {
+  width: 90%;
+  border: 0;
+  text-align: center;
+  font-size: 26px;
+  color: var(--kaira-blue-text);
+  padding: 12px 16px;
+  margin-top: 0px;
+  margin-bottom: 0px;
+}
+
+/* title: main title */
+section.title .maintitle {
+  width: 90%;
+  border: 0;
+  text-align: center;
+  font-size: 50px;
+  font-weight: 800;
+  color: var(--kaira-blue-text);
+  padding: 14px 16px;
+}
+
+/* title: bottom blue band */
+section.title .bottom-band {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 45%;
+  background: var(--kaira-blue);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 80px 28px;
+  box-sizing: border-box;
+}
+
+/* title: name line */
+section.title .name-box {
+  width: 90%;
+  border: 0;
+  color: var(--kaira-white);
+  text-align: center;
+  padding: 12px 16px;
+  font-size: 24px;
+  font-weight: 700;
+  white-space: pre-wrap;
+  overflow: visible;
+  text-overflow: clip;
+}
+
+/* title: second name line */
+section.title .name-box + .name-box {
+  font-size: 30px;
+}
+
+/* ============ Agenda Slide ============ */
+/* agenda: section */
+section.agenda {
+  padding: 24px 60px 48px;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* agenda: header (left) */
+section.agenda .header {
+  position: absolute;
+  left: 22px;
+  top: 16px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+/* agenda: title text */
+section.agenda .title-block {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  font-size: 34px;
+  font-weight: 800;
+  color: #111111;
+}
+
+/* agenda: title mark */
+section.agenda .title-block .mark {
+  width: 16px;
+  height: 32px;
+  background: var(--kaira-blue);
+  transform: translateY(2px);
+}
+
+/* agenda: logo (right) */
+section.agenda .logo-right {
+  position: absolute;
+  right: 20px;
+  top: -23px;
+  width: calc(160px * var(--kaira-logo-scale));
+  height: calc(44px * var(--kaira-logo-scale));
+  background-image: var(--kaira-logo-url);
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: right top;
+}
+
+/* agenda: center box */
+section.agenda .dashed-box {
+  border: 0;
+  width: 70%;
+  max-width: 900px;
+  min-height: 360px;
+  margin: 0 auto;
+  padding: 28px 24px;
+  color: var(--kaira-blue-text);
+  font-size: 32px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+}
+
+section.agenda .agenda-list {
+  width: 100%;
+  max-width: 720px;
+}
+
+/* agenda: item row */
+section.agenda .agenda-item {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+
+/* agenda: item square */
+section.agenda .agenda-item::before {
+  content: "";
+  width: 18px;
+  height: 18px;
+  background: var(--kaira-blue);
+  flex: 0 0 auto;
+  transform: translateY(2px);
+}
+
+/* ============ Gray Content Slide (Markdown-only) ============ */
+/* gray: section */
+section.content-gray {
+  --card-outer-pad: 24px;
+  --card-pad-top: 18px;
+  --card-pad-x: 32px;
+  --card-pad-bottom: 32px;
+  --card-radius: 20px;
+  --card-width: 1232px;
+  --card-height: 672px;
+  --logo-top-offset: -38px;
+  background-color: var(--kaira-gray-bg);
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: stretch;
+  background-image:
+    var(--kaira-logo-url),
+    url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='1232' height='672' viewBox='0 0 1232 672'><rect x='0' y='0' width='1232' height='672' rx='20' ry='20' fill='%23ffffff'/></svg>");
+  background-repeat: no-repeat, no-repeat;
+  background-size:
+    var(--kaira-content-logo-box) var(--kaira-content-logo-box),
+    var(--card-width) var(--card-height);
+  background-position:
+    right calc(var(--card-outer-pad) + var(--card-pad-x)) top calc(var(--card-outer-pad) + var(--card-pad-top) + var(--logo-top-offset)),
+    var(--card-outer-pad) var(--card-outer-pad);
+  position: relative;
+  box-sizing: border-box;
+  padding:
+    calc(var(--card-outer-pad) + var(--card-pad-top))
+    calc(var(--card-outer-pad) + var(--card-pad-x))
+    calc(var(--card-outer-pad) + var(--card-pad-bottom))
+    calc(var(--card-outer-pad) + var(--card-pad-x));
+}
+
+/* gray: heading */
+section.content-gray h2 {
+  position: relative;
+  margin: 0 0 12px 0;
+  padding-left: 40px;
+  padding-right: calc(var(--kaira-content-logo-reserve) + 16px);
+  font-size: 26px;
+  font-weight: 700;
+  color: #111111;
+}
+
+section.content-gray h2::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 50%;
+  width: 28px;
+  height: 6px;
+  background: var(--kaira-blue);
+  border-radius: 2px;
+  transform: translateY(-50%);
+}
+
+section.content-gray p {
+  margin: 0 0 10px 0;
+}
+
+section.content-gray pre {
+  margin: 8px 0 0 0;
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  align-self: flex-start;
+  box-sizing: border-box;
+  overflow-x: visible;
+  white-space: pre-wrap !important;
+  overflow-wrap: break-word;
+  min-width: 0;
+  max-width: 100%;
+  font-size: 18px;
+  line-height: 1.4;
+  background: #f5f7fa;
+  border: 1px solid #d7dde5;
+  border-radius: 8px;
+  padding: 16px 18px;
+  white-space-collapse: preserve !important;
+  tab-size: 4;
+}
+
+/* ============ Utilities (Content Page) ============ */
+/* util: two-column layout */
+.two-col {
+  display: flex;
+  gap: 28px;
+}
+
+.two-col > .col {
+  flex: 1 1 0;
+}
+
+/* util: top-half two columns, bottom single column */
+.two-top-one-bottom {
+  display: block;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: 1fr auto;
+  gap: 20px 28px;
+}
+
+.two-top-one-bottom .top-left {
+  grid-column: 1;
+  grid-row: 1;
+}
+
+.two-top-one-bottom .top-right {
+  grid-column: 2;
+  grid-row: 1;
+}
+
+.two-top-one-bottom .bottom {
+  grid-column: 1 / span 2;
+  grid-row: 2;
+}
+
+/* util: red text (for emphasis) */
+.red-text {
+  color: var(--kaira-red);
+}
+
+/* util: dark blue text (for emphasis) */
+.blue-text {
+  color: var(--kaira-blue-dark);
+}
+
+/* util: bold text */
+.bold {
+  font-weight: 700;
+}
+
+/* util: image block */
+.image-sample {
+  width: 240px;
+  height: 70px;
+  background-image: var(--kaira-logo-url);
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+}
+
+/* util: code block */
+pre code {
+  font-family: "Consolas", monospace !important; 
+  font-size: inherit;
+  line-height: inherit;
+  color: #1b1b1b;
+  display: block !important;
+  width: auto;
+  background: transparent !important;
+  padding: 0;
+  margin: 0;
+  white-space: inherit !important;
+  white-space-collapse: preserve !important;
+}
+pre code span {
+  display: inline !important;
+  white-space: inherit !important;
+}
+code[data-name] {
+  position: relative;
+  margin-top: 44px;
+  padding-top: 4px;
+}
+code[data-name]::before {
+  position: absolute;
+  top: -44px;
+  left: 0;
+  padding: .25em .75em;
+  border-top-left-radius: 8px;
+  border-bottom-right-radius: 8px;
+  content: attr(data-name);
+  font-size: .75em;
+  background: var(--color-dimmed);
+}
+
+/* util: text align */
+.text-center {
+  display: block;
+  text-align: center;
+}
+
+.text-right {
+  display: block;
+  text-align: right;
+}
+
+/* util: underline */
+.underline {
+  display: block;
+  text-decoration: underline;
+  text-decoration-thickness: 3px;
+  text-underline-offset: 6px;
+}
+
+/* ============ Pagination ============ */
+section::after {
+  content: attr(data-marpit-pagination);
+  position: absolute;
+  right: 8px;
+  bottom: 0px;
+  font-size: 32px;
+  color: #111111;
+}

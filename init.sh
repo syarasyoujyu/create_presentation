@@ -5,8 +5,6 @@ sudo apt install chromium-browser
 export CHROME_PATH=$(which chromium-browser)
 sudo apt install libreoffice
 sudo apt install fonts-noto-cjk
-sudo apt install fonts-noto
-sudo fc-cache -fv
 
 #アプリ用
 node server.js

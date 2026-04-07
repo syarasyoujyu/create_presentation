@@ -180,21 +180,20 @@ async function resolveImageObject(page, candidate) {
     return null;
   }
 
-  const maybeObject = page.objs.get(candidate);
-
-  if (maybeObject?.data && maybeObject.width && maybeObject.height) {
-    return maybeObject;
-  }
-
   return new Promise((resolve) => {
     const timeoutId = window.setTimeout(() => {
       resolve(null);
     }, 3000);
 
-    page.objs.get(candidate, (resolvedObject) => {
+    try {
+      page.objs.get(candidate, (resolvedObject) => {
+        window.clearTimeout(timeoutId);
+        resolve(resolvedObject || null);
+      });
+    } catch {
       window.clearTimeout(timeoutId);
-      resolve(resolvedObject || null);
-    });
+      resolve(null);
+    }
   });
 }
 

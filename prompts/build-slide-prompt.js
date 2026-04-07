@@ -19,16 +19,17 @@ function buildSlidePrompt({
 目的:
 - 論文内容を、研究発表スライドとして分かりやすく整理する
 - 出力は、そのまま .md ファイルとして保存して Marp でレンダリングできる形式にする
-- 与えられたテンプレートの構造・style・class指定を守る
+- 与えられたテンプレートの構造と class 指定を守る
 
 最重要ルール:
 - 出力は Marp Markdown のみ
 - 説明文、前置き、注釈、コードフェンスは一切不要
-- 先頭には必ず frontmatter と <style>...</style> を含める
+- 先頭には必ず frontmatter を含める
+- <style> タグは出力しない
 - スライド区切りは --- を使う
 - 1枚目は必ずタイトルスライド
 - 2枚目は必ずアジェンダ
-- 3枚目以降は <!-- class: slides --> を使う
+- 3枚目以降は <!-- class: content-gray show-page --> を使う
 - テンプレートのCSSクラス名は変更しない
 - 数式は Markdown の数式記法を使い、HTMLブロックの中には極力書かない
 - レイアウトは Marp 標準の Markdown を優先し、h1 / h2 / p / ul / ol / table を中心に構成する
@@ -71,10 +72,10 @@ function buildSlidePrompt({
   - 日付: ${eventDate}
   - 所属: ${affiliation}
   - 名前: ${presenterName}
-- タイトルスライドは <!-- class: title --> を使い、h2 にイベント名と日付、h1 にタイトル、段落2つに所属と名前を書く
+- タイトルスライドは <!-- class: title --> を使い、テンプレートにある各ブロックへ内容を入れる
 - 発表タイトルは論文内容をもとに自然な日本語タイトルへ必要に応じて調整してよい
-- アジェンダは <!-- class: agenda --> を使い、h1 の下に箇条書きで4〜6項目を書く
-- 本文スライドは <!-- class: slides --> を使い、h1 を見出し、h2 をリード文として使う
+- アジェンダは <!-- class: agenda show-page --> を使い、テンプレートにある agenda-item を4〜6項目へ増やしてよい
+- 本文スライドは <!-- class: content-gray show-page --> を使う
 - 提案手法は、必要なら two-col や two-top-one-bottom を使って整理してよい
 - 結果スライドでは、比較対象・評価指標・何が改善したかを必ず明記
 - 最終スライドのまとめでは、貢献を3点以内で簡潔に述べる
@@ -88,6 +89,7 @@ function buildSlidePrompt({
 - 冗長な導入は避ける
 
 以下のテンプレートを必ず先頭からそのまま使い、その後に各スライド内容を埋めて完成版を出力してください。
+テンプレート外の style 情報はすべて固定CSS側で管理しているため、style を新たに出力してはいけません。
 
 ${marpTemplate}
 
