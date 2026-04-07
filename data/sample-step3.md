@@ -5,7 +5,6 @@ size: 16:9
 math: katex
 highlight: github
 paginate: true
-style: ../themes/kaira.css
 ---
 
 <!-- タイトルスライド -->
@@ -66,7 +65,7 @@ style: ../themes/kaira.css
     </ul>
   </div>
   <div class="col">
-    <p class="bold text-center">複合劣化画像の例 (論文 図5.15より)</p>
+    <p class="bold text-center">複合劣化画像の例 (<span class="ref-inline">論文図5.15</span>より)</p>
     <p class="text-center">
 
 ![w:520](../data/sample-step3-assets/figure-01.png)
@@ -150,7 +149,7 @@ style: ../themes/kaira.css
     </ul>
   </div>
   <div class="col">
-    <p class="bold text-center">画質改善効果の比較 (論文 図2.9より)</p>
+    <p class="bold text-center">画質改善効果の比較 (<span class="ref-inline">論文図2.9</span>より)</p>
     <p class="text-center">[図: (a)補正前, (b)SSR(従来法), (c)2MSR(従来法), (d)提案法 のナンバープレート画像比較。提案法が最も自然で鮮明]</p>
     <p>提案手法(d)は、白飛びが抑制され、文字が最もクリアになっている。</p>
   </div>
@@ -178,7 +177,7 @@ style: ../themes/kaira.css
     </ul>
   </div>
   <div class="col">
-    <p class="bold text-center">超解像結果の比較 (論文 図3.10より)</p>
+    <p class="bold text-center">超解像結果の比較 (<span class="ref-inline">論文図3.10</span>より)</p>
     <p class="text-center">[図: (a)従来超解像, (b)提案超解像 のナンバープレート画像比較。提案法の方が文字の輪郭がシャープ]</p>
     <p>提案手法(b)は、従来手法(a)に比べて文字のエッジが鮮明に復元されている。</p>
   </div>
@@ -207,7 +206,7 @@ style: ../themes/kaira.css
     </ul>
   </div>
   <div class="col">
-    <p class="bold text-center">提案手法のアーキテクチャ (論文 図4.5より)</p>
+    <p class="bold text-center">提案手法のアーキテクチャ (<span class="ref-inline">論文図4.5</span>より)</p>
     <p class="text-center">
 
 ![w:520](../data/sample-step3-assets/figure-04.png)
@@ -280,7 +279,7 @@ style: ../themes/kaira.css
     </ul>
   </div>
   <div class="col">
-    <p class="bold text-center">劣化強度と平均候補数の関係 (論文 図5.12)</p>
+    <p class="bold text-center">劣化強度と平均候補数の関係 (<span class="ref-inline">論文図5.12</span>)</p>
     <p class="text-center">[図: 劣化が強くなっても、提案手法(紫の線)は実用レベルの平均候補数(赤の破線)以下を維持しているグラフ]</p>
     <p>提案手法は、幅広い劣化強度に対して<span class="bold">実用的な候補数（平均2候補以下）</span>で正解を提示できる。</p>
   </div>
@@ -295,7 +294,7 @@ style: ../themes/kaira.css
 
 -   **各手法の専門性**: 3つの手法が「環境光」「低解像度」「多様な劣化」という異なる課題にそれぞれ特化して対応したことで、総合的な性能が向上したと考えられる。
 -   **劣化が強い状況での優位性**: 特に多重構造CNNは、劣化が強くなるほど従来法との差が開き、適応性の高さが示された。これは、劣化に応じて適切な解像度の情報を自動的に選択できるアーキテクチャの有効性を示唆している。
--   **実用性の高さ**: 1候補目での正答率も従来法より高く（表5.8）、平均候補数も少ない（図5.12）ことから、提案手法は単に最終的な正答率が高いだけでなく、捜査の初期段階で迅速に有力な候補を提示できる実用性を備えている。
+-   **実用性の高さ**: 1候補目での正答率も従来法より高く（<span class="ref-inline">表5.8</span>）、平均候補数も少ない（<span class="ref-inline">図5.12</span>）ことから、提案手法は単に最終的な正答率が高いだけでなく、捜査の初期段階で迅速に有力な候補を提示できる実用性を備えている。
 -   **相乗効果**: 画質改善（提案1, 2）によって文字認識（提案3）の入力がクリーンになり、認識精度がさらに向上するという相乗効果が確認された。
 
 ---

@@ -570,6 +570,14 @@ function extractTextFromGemini(responseJson) {
 
 function normalizeMarpOutput(output) {
   let trimmed = output.trim();
+  const standardFrontmatterLines = [
+    "marp: true",
+    "theme: kaira",
+    "size: 16:9",
+    "math: katex",
+    "highlight: github",
+    "paginate: true",
+  ];
 
   if (trimmed.startsWith("```")) {
     trimmed = trimmed
@@ -578,11 +586,40 @@ function normalizeMarpOutput(output) {
       .trim();
   }
 
-  if (!trimmed.startsWith("---") && /^marp:\s*true\b/m.test(trimmed)) {
-    trimmed = `---\n${trimmed}`;
+  const frontmatterMatch = trimmed.match(/^---\r?\n([\s\S]*?)\r?\n---\r?\n?/);
+
+  if (frontmatterMatch) {
+    const body = trimmed.slice(frontmatterMatch[0].length).trimStart();
+    const extraLines = frontmatterMatch[1]
+      .split(/\r?\n/)
+      .map((line) => line.trimEnd())
+      .filter((line) => {
+        if (!line.trim()) {
+          return false;
+        }
+
+        if (/^style\s*:/i.test(line)) {
+          return false;
+        }
+
+        return !/^(marp|theme|size|math|highlight|paginate)\s*:/i.test(line);
+      });
+
+    return `---\n${[...standardFrontmatterLines, ...extraLines].join("\n")}\n---\n\n${normalizeInlineReferences(body)}`;
   }
 
-  return trimmed;
+  if (!trimmed.startsWith("---")) {
+    return `---\n${standardFrontmatterLines.join("\n")}\n---\n\n${normalizeInlineReferences(trimmed)}`;
+  }
+
+  return normalizeInlineReferences(trimmed);
+}
+
+function normalizeInlineReferences(markdown) {
+  return markdown.replace(
+    /(?<![\w>])((?:論文\s*)?[図表式]\s*\d+(?:\.\d+)*)/gu,
+    (match) => `<span class="ref-inline">${match.replace(/\s+/gu, "")}</span>`
+  );
 }
 
 function formatDateForSlide(date) {

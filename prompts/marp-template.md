@@ -5,7 +5,6 @@ size: 16:9
 math: katex
 highlight: github
 paginate: true
-style: ../themes/kaira.css
 ---
 
 <!-- タイトルスライド -->

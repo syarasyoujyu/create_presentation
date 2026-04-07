@@ -10,6 +10,5 @@ sudo apt install fonts-noto-cjk
 node server.js
 
 #marp出力結果をpptx or pdfに変換
-cd data
-marp --pdf sample-step2.md  --allow-local-files
-marp --pptx --pptx-editable sample-step3.md  --allow-local-files
+npx marp --config-file ./.marprc.yml --pdf ./data/sample-step2.md --allow-local-files
+npx marp --config-file ./.marprc.yml --pptx --pptx-editable ./data/sample-step3.md --allow-local-files

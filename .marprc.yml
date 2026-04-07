@@ -1,0 +1,3 @@
+allowLocalFiles: true
+themeSet:
+  - ./themes/kaira.css

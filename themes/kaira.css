@@ -1,4 +1,5 @@
 /* @theme kaira */
+@import url("https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700&display=swap");
 @import "default";
 
 /* ============ Variables ============ */
@@ -14,16 +15,54 @@
   --kaira-content-logo-reserve: calc(150px * var(--kaira-logo-scale));
   --kaira-content-logo-box: calc(40px * var(--kaira-logo-scale));
   --kaira-red: #c9342f;
+  --kaira-body-font: "Noto Sans JP", "Noto Sans CJK JP", "NotoSansCJKjp", "Meiryo", "メイリオ", sans-serif;
 }
 
 /* ============ Base Layout ============ */
 section {
-  font-family: "Arial",
-  sans-serif;
+  font-family: var(--kaira-body-font) !important;
+  font-weight: 400;
+  font-style: normal;
+  font-synthesis: none;
   color: #111111;
   background: var(--kaira-white);
   padding: 48px 80px;
   box-sizing: border-box;
+}
+body {
+  font-family: var(--kaira-body-font) !important;
+}
+section *:not(pre):not(code):not(pre *):not(code *) {
+  font-family: var(--kaira-body-font) !important;
+  font-synthesis: none;
+}
+section p,
+section li,
+section div,
+section span,
+section strong,
+section b,
+section em,
+section a,
+section h1,
+section h2,
+section h3,
+section h4,
+section h5,
+section h6 {
+  font-family: var(--kaira-body-font) !important;
+}
+section strong,
+section b,
+.bold,
+.bold * {
+  font-family: var(--kaira-body-font) !important;
+  font-weight: 700 !important;
+}
+.ref-inline,
+.ref-inline * {
+  font-family: var(--kaira-body-font) !important;
+  font-weight: inherit !important;
 }
 
 /* ============ Title Slide ============ */
@@ -354,6 +393,12 @@ pre code {
   white-space: inherit !important;
   white-space-collapse: preserve !important;
 }
+section pre,
+section pre *,
+section code,
+section code * {
+  font-family: "Consolas", monospace !important;
+}
 pre code span {
   display: inline !important;
   white-space: inherit !important;
@@ -392,6 +437,14 @@ code[data-name]::before {
   text-decoration: underline;
   text-decoration-thickness: 3px;
   text-underline-offset: 6px;
+}
+
+.ref-inline {
+  white-space: nowrap !important;
+  word-break: keep-all !important;
+  overflow-wrap: normal !important;
+  letter-spacing: 0 !important;
+  font-family: var(--kaira-body-font) !important;
 }
 
 /* ============ Pagination ============ */
