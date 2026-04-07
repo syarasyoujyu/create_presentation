@@ -16,6 +16,7 @@
   --kaira-content-logo-box: calc(40px * var(--kaira-logo-scale));
   --kaira-red: #c9342f;
   --kaira-body-font: "Noto Sans JP", "Noto Sans CJK JP", "NotoSansCJKjp", "Meiryo", "メイリオ", sans-serif;
+  --kaira-code-font: "Noto Sans JP", "Noto Sans CJK JP", "NotoSansCJKjp", "Meiryo", "メイリオ", sans-serif;
 }
 
 /* ============ Base Layout ============ */
@@ -298,16 +299,18 @@ section.content-gray p {
   margin: 0 0 10px 0;
 }
 
-section.content-gray pre {
+section.content-gray :is(pre, marp-pre) {
   margin: 8px 0 0 0;
   display: block;
   width: 100%;
   max-width: 100%;
   align-self: flex-start;
   box-sizing: border-box;
-  overflow-x: visible;
-  white-space: pre-wrap !important;
-  overflow-wrap: break-word;
+  overflow-x: auto;
+  overflow-y: hidden;
+  white-space: break-spaces !important;
+  overflow-wrap: normal;
+  word-break: normal;
   min-width: 0;
   max-width: 100%;
   font-size: 18px;
@@ -318,6 +321,14 @@ section.content-gray pre {
   padding: 16px 18px;
   white-space-collapse: preserve !important;
   tab-size: 4;
+  letter-spacing: 0 !important;
+  word-spacing: 0 !important;
+  font-weight: 400 !important;
+  font-kerning: none;
+  font-variant-ligatures: none;
+  font-feature-settings: "liga" 0, "calt" 0;
+  text-rendering: geometricPrecision;
+  font-family: var(--kaira-code-font) !important;
 }
 
 /* ============ Utilities (Content Page) ============ */
@@ -380,8 +391,8 @@ section.content-gray pre {
 }
 
 /* util: code block */
-pre code {
-  font-family: "Consolas", monospace !important; 
+section.content-gray :is(pre, marp-pre) code {
+  font-family: var(--kaira-code-font) !important;
   font-size: inherit;
   line-height: inherit;
   color: #1b1b1b;
@@ -392,16 +403,42 @@ pre code {
   margin: 0;
   white-space: inherit !important;
   white-space-collapse: preserve !important;
+  overflow-wrap: normal !important;
+  word-break: normal !important;
+  word-spacing: 0 !important;
+  letter-spacing: 0 !important;
+  font-weight: 400 !important;
+  font-kerning: none !important;
+  font-variant-ligatures: none !important;
+  font-feature-settings: "liga" 0, "calt" 0 !important;
 }
-section pre,
-section pre *,
-section code,
-section code * {
-  font-family: "Consolas", monospace !important;
+section.content-gray :is(pre, marp-pre),
+section.content-gray :is(pre, marp-pre) *,
+section.content-gray code,
+section.content-gray code * {
+  font-family: var(--kaira-code-font) !important;
 }
-pre code span {
+section.content-gray :is(pre, marp-pre) .hljs,
+section.content-gray :is(pre, marp-pre) .hljs *,
+section.content-gray :is(pre, marp-pre) [class^="hljs-"],
+section.content-gray :is(pre, marp-pre) [class^="hljs-"] *,
+section.content-gray :is(pre, marp-pre) [class*=" hljs-"],
+section.content-gray :is(pre, marp-pre) [class*=" hljs-"] * {
+  background: transparent !important;
+  font-family: var(--kaira-code-font) !important;
+  font-kerning: none !important;
+  font-variant-ligatures: none !important;
+  font-feature-settings: "liga" 0, "calt" 0 !important;
+}
+section.content-gray :is(pre, marp-pre) code :is(span, marp-span) {
   display: inline !important;
   white-space: inherit !important;
+  overflow-wrap: normal !important;
+  word-break: normal !important;
+  word-spacing: 0 !important;
+  letter-spacing: 0 !important;
+  font-weight: 400 !important;
+  font-kerning: none !important;
 }
 code[data-name] {
   position: relative;
