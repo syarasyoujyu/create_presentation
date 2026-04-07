@@ -315,6 +315,30 @@ section.content-gray blockquote {
   background: #eef7fb;
   color: #111111;
   box-shadow: 0 2px 6px rgba(11, 75, 120, 0.08);
+  text-align: left !important;
+  text-justify: auto !important;
+  letter-spacing: normal !important;
+  word-spacing: normal !important;
+  white-space: normal !important;
+}
+
+section.content-gray blockquote > * {
+  text-align: left !important;
+  text-justify: auto !important;
+  letter-spacing: normal !important;
+  word-spacing: normal !important;
+}
+
+section.content-gray blockquote p {
+  margin: 0 0 10px 0;
+  line-height: 1.55;
+  text-align: left !important;
+  text-justify: auto !important;
+  letter-spacing: normal !important;
+  word-spacing: normal !important;
+  white-space: normal !important;
+  word-break: normal !important;
+  overflow-wrap: break-word !important;
 }
 
 section.content-gray blockquote > p:first-child {
@@ -328,6 +352,11 @@ section.content-gray blockquote > p:first-child {
 
 section.content-gray blockquote > p:last-child {
   margin-bottom: 0;
+}
+
+section.content-gray blockquote .katex-display {
+  text-align: center !important;
+  margin: 0.6em 0 0.2em 0;
 }
 
 section.content-gray :is(pre, marp-pre) {

@@ -30,251 +30,190 @@ paginate: true
 
 <div class="dashed-box">
   <div class="agenda-list">
-    <div class="agenda-item">1. はじめに：ANNと画像認識の課題</div>
-    <div class="agenda-item">2. CNNの基本アーキテクチャ</div>
-    <div class="agenda-item">3. 主要な層①：畳み込み層</div>
-    <div class="agenda-item">4. 主要な層②：プーリング層と全結合層</div>
-    <div class="agenda-item">5. CNNの設計レシピと学習の可視化</div>
+    <div class="agenda-item">1. はじめに：ANNの課題</div>
+    <div class="agenda-item">2. CNNとは？</div>
+    <div class="agenda-item">3. CNNの基本構造</div>
+    <div class="agenda-item">4. 主要な層の役割</div>
+    <div class="agenda-item">5. CNN構築のレシピ</div>
     <div class="agenda-item">6. まとめ</div>
   </div>
 </div>
 
 ---
-
 <!-- class: content-gray show-page -->
 
-## 1. はじめに：ANNと画像認識の課題
-近年、人工ニューラルネットワーク(ANN)は機械学習分野で大きな成功を収めています
+## 1. はじめに：ANNの課題
+従来の人工ニューラルネットワーク（ANN）は画像認識に課題がありました
 
+*   **画像の高次元性**
+    *   高解像度のカラー画像を入力すると、パラメータ数が爆発的に増加
+    *   例：64×64ピクセルのカラー画像では、最初の層のニューロン1つに<span class="bold">12,288個</span>の重みが必要 (64×64×3)
+
+*   **過学習 (Overfitting)**
+    *   パラメータが多すぎると、訓練データに過剰に適合
+    *   未知のデータに対する汎化性能が低下するリスク
+
+<br>
+<span class="bold">→ 画像の特性を考慮した、より効率的なアーキテクチャが必要です</span>
+
+---
+<!-- class: content-gray show-page -->
+
+## 2. CNNとは？
+Convolutional Neural Network (畳み込みニューラルネットワーク) の略称です
+
+*   **画像処理に特化したニューラルネットワーク**
+    *   入力データが画像であることを前提に設計
+    *   生物の視覚野の仕組みにヒントを得ています
+
+*   **ANNとの主な違い**
+    *   ニューロンを3次元（縦・横・深さ）に配置
+    *   ニューロンは前の層の<span class="bold blue-text">一部分（局所領域）</span>にのみ接続
+
+<br>
+<span class="bold">画像の持つ「空間的な局所性」を活かすことで、パラメータ数を大幅に削減します</span>
+
+---
+<!-- class: content-gray show-page -->
+
+## 3. CNNの基本構造
+CNNは主に3種類の層を積み重ねて構成されます
+
+[図: ここにシンプルなCNNアーキテクチャの図を入れる (Figure 2)]
+
+<br>
+
+*   **畳み込み層 (Convolutional Layer)**
+    *   画像からエッジや模様などの局所的な特徴を抽出します
+
+*   **プーリング層 (Pooling Layer)**
+    *   特徴を維持したまま、データの次元を削減します
+
+*   **全結合層 (Fully-connected Layer)**
+    *   抽出された特徴を統合し、最終的な分類を行います
+
+---
+<!-- class: content-gray show-page -->
+
+## 4. 主要な層の役割 (1/4)
 <div class="two-col">
   <div class="col">
-    <p>
-      <span class="bold">従来のANN (全結合型)</span>
-    </p>
+    <h3>畳み込み層: 特徴の抽出</h3>
     <ul>
-      <li>ニューロンが前の層の<span class="red-text">すべてのニューロン</span>と結合</li>
-      <li>汎用性が高いが、入力データの構造を考慮しない</li>
+      <li>学習可能なフィルタ（カーネル）で画像上を走査</li>
+      <li>エッジやコーナー等の特徴マップ（Activation Map）を生成</li>
+      <li><span class="bold blue-text">パラメータ共有</span>の仕組みにより、少ないパラメータで学習可能</li>
     </ul>
     <br>
     <p>
-      <span class="bold red-text">画像データへの適用における課題</span>
+      活性化関数には主にReLU (Rectified Linear Unit) が使われます。
     </p>
-    <ul>
-      <li>高解像度の画像では、パラメータ数が爆発的に増加</li>
-      <li>膨大な計算コストと<span class="bold">過学習(Overfitting)</span>のリスク増大</li>
-    </ul>
   </div>
   <div class="col">
-    [図: Figure 1. 全結合型ニューラルネットワーク(FNN)の基本構造]
+    [図: ここに畳み込み演算の図解を入れる (Figure 4)]
     <p class="text-center">
-    入力層の各ノードが、隠れ層の全ノードに接続している
+      <br>
+      カーネルを適用し、特徴を抽出する様子
     </p>
   </div>
 </div>
 
 ---
-
 <!-- class: content-gray show-page -->
 
-## 課題：パラメータ数の爆発的な増加
-画像の次元が少し大きくなるだけで、パラメータ数は現実的でないほど増大します
+## 4. 主要な層の役割 (2/4)
+畳み込み層の出力サイズは、以下の式で計算できます
 
-<span class="bold">例：最初の隠れ層の1つのニューロンが持つ重み(パラメータ)数</span>
+$$
+\frac{(V - R + 2Z)}{S} + 1
+$$
 
-<div class="two-col">
-  <div class="col">
-    <p class="text-center">
-      <span class="bold">MNISTデータセット (28×28, 白黒)</span>
-    </p>
-    <p class="text-center">
-      28 × 28 × 1 = <span class="bold blue-text" style="font-size: 1.5em;">784</span>
-    </p>
-    <p class="text-center">
-      (多くのANNで管理可能)
-    </p>
-  </div>
-  <div class="col">
-    <p class="text-center">
-      <span class="bold">少し大きめのカラー画像 (64×64, RGB)</span>
-    </p>
-    <p class="text-center">
-      64 × 64 × 3 = <span class="bold red-text" style="font-size: 1.5em;">12,288</span>
-    </p>
-    <p class="text-center">
-      (ネットワーク全体では膨大な数に)
-    </p>
-  </div>
-</div>
+*   $V$: 入力ボリュームのサイズ (縦 or 横)
+*   $R$: 受容野 (カーネル) のサイズ
+*   $Z$: ゼロパディングの量
+*   $S$: ストライド (カーネルの移動量)
+
+<br>
+ハイパーパラメータ (R, Z, S) を調整することで、出力サイズを制御します。
+
+---
+<!-- class: content-gray show-page -->
+
+## 4. 主要な層の役割 (3/4)
+プーリング層は、特徴マップを圧縮して計算量を削減します
+
+*   **次元削減 (ダウンサンプリング)**
+    *   特徴マップの空間的次元（縦・横）を小さくする
+    *   計算コストの削減と過学習の抑制に貢献
+
+*   **Max-pooling**
+    *   領域内の最大値を取る手法が一般的
+    *   特徴の微小な位置ずれに対して頑健（位置不変性）になる効果
+
+<br>
+<span class="bold">これにより、より本質的な特徴を保持したまま、効率的な処理が可能になります</span>
+
+---
+<!-- class: content-gray show-page -->
+
+## 4. 主要な層の役割 (4/4)
+全結合層は、抽出された特徴から最終的な識別を行います
+
+*   **特徴の統合と分類**
+    *   畳み込み層・プーリング層で抽出されたすべての特徴を入力
+    *   最終的なクラス分類のスコアを出力
+
+*   **従来のANNと同じ構造**
+    *   ニューロンが隣接する層の全てのニューロンと結合
+
+[図: ここにFNNの基本構造図を入れる (Figure 1)]
+
+---
+<!-- class: content-gray show-page -->
+
+## CNNは何を学習しているのか？
+学習済みのフィルタを可視化すると、CNNが捉えている特徴が分かります
+
+[図: ここに学習済みフィルタの可視化画像を入れる (Figure 3)]
 
 <br>
 
-<p class="bold">
-→ この問題を解決するために、画像に特化したアーキテクチャである<span class="blue-text">畳み込みニューラルネットワーク(CNN)</span>が登場しました。
-</p>
+*   MNIST（手書き数字）データセットで学習したCNNの例
+*   最初の畳み込み層は、<span class="bold blue-text">エッジやストロークといった低レベルな特徴</span>を自動で学習していることが分かります
+*   層が深くなるにつれて、これらの特徴を組み合わせ、より複雑な特徴（数字のパーツなど）を捉えていきます
 
 ---
-
 <!-- class: content-gray show-page -->
 
-## 2. CNNの基本アーキテクチャ
-CNNは、入力が画像であることを前提とし、その特性を活かした構造を持ちます
+## 5. CNN構築のレシピ
+効率的なCNNを構築するための基本的な指針があります
 
-[図: Figure 2. MNIST分類のためのシンプルなCNNアーキテクチャ]
+*   **基本パターン**
+    *   畳み込み層とプーリング層を交互に重ね、最後に全結合層を配置
 
-CNNは主に3種類の層を積み重ねて構成されます。
-1.  **畳み込み層 (Convolutional Layer):** 画像から局所的な特徴を抽出
-2.  **プーリング層 (Pooling Layer):** 特徴マップの次元を削減
-3.  **全結合層 (Fully-connected Layer):** 抽出された特徴を元に分類
+*   **推奨パターン**
+    *   プーリング層の前に複数の畳み込み層を重ねる
+    *   より複雑で表現力の高い特徴を抽出可能
+    *   [図: ここに一般的なCNNアーキテクチャの図を入れる (Figure 5)]
 
-<br>
-<p class="bold">
-最大の特徴は、<span class="blue-text">入力画像の3次元構造（幅, 高さ, 深さ）</span>を保ったまま処理を進める点です。
-</p>
-
----
-
-<!-- class: content-gray show-page -->
-
-## 3. 主要な層①：畳み込み層 (Convolutional Layer)
-CNNの中核を担う層で、学習可能なフィルタを用いて画像の特徴を抽出します
-
-<div class="two-col">
-  <div class="col">
-    <p><span class="bold">役割:</span></p>
-    <ul>
-      <li>画像のエッジ、コーナー、テクスチャなどの<span class="red-text">局所的な特徴</span>を検出</li>
-    </ul>
-    <br>
-    <p><span class="bold">重要な工夫:</span></p>
-    <ul>
-      <li><span class="bold blue-text">局所的結合:</span><br>ニューロンを前の層の小さな領域にのみ接続</li>
-      <li><span class="bold blue-text">パラメータ共有:</span><br>同じフィルタ(カーネル)を画像全体で使い回す</li>
-    </ul>
-    <p>→ これにより、パラメータ数を劇的に削減し、過学習を抑制</p>
-  </div>
-  <div class="col">
-    [図: Figure 4. 畳み込み演算の図解]
-    <p class="text-center">
-    カーネルが入力上を移動しながら、内積を計算し、出力(特徴マップ)を生成する
-    </p>
-  </div>
-</div>
+*   **Tips**
+    *   フィルタサイズは小さく（例：3×3）、層を深くする方が性能が良い傾向
+    *   入力画像のサイズは2のべき乗（32, 64, 128...）が一般的
 
 ---
-
-<!-- class: content-gray show-page -->
-
-## 畳み込み層の出力サイズを制御する要素
-ハイパーパラメータの設定により、出力される特徴マップの次元を調整します
-
-- **Depth (深さ):**
-  - 使用するフィルタの数。出力される特徴マップの数に等しい。
-  - どのような特徴を抽出したいかに応じて設定する。
-
-- **Stride (ストライド):**
-  - フィルタを移動させる歩幅。
-  - ストライドを大きくすると、出力サイズは小さくなる。
-
-- **Zero-padding (ゼロパディング):**
-  - 入力画像の周囲を0で埋める処理。
-  - 出力サイズの縮小を防いだり、画像の端の特徴を捉えやすくする。
-
-> 出力サイズの計算式:
->
-> 入力ボリュームサイズを $V$, 受容野(フィルタ)サイズを $R$, ゼロパディング量を $Z$, ストライドを $S$ とすると、出力サイズは以下で計算できます。
-> $$
-> \frac{(V - R + 2Z)}{S} + 1
-> $$
-
----
-
-<!-- class: content-gray show-page -->
-
-## 4. 主要な層②：プーリング層と全結合層
-畳み込み層で抽出した特徴を圧縮し、最終的な分類を行います
-
-<div class="two-col">
-  <div class="col">
-    <p class="bold blue-text">プーリング層 (Pooling Layer)</p>
-    <ul>
-      <li><span class="bold">役割:</span> 特徴マップの次元削減 (ダウンサンプリング)</li>
-      <li><span class="bold">効果:</span>
-        <ul>
-          <li>計算量の削減</li>
-          <li>特徴の微小な位置ずれに対する頑健性 (位置不変性) の獲得</li>
-        </ul>
-      </li>
-      <li><span class="bold">代表例:</span> Max-pooling
-        <ul>
-          <li>領域内の最大値を取る。</li>
-          <li>通常、2x2のフィルタをストライド2で適用し、サイズを1/4にする。</li>
-        </ul>
-      </li>
-    </ul>
-  </div>
-  <div class="col">
-    <p class="bold blue-text">全結合層 (Fully-connected Layer)</p>
-    <ul>
-      <li><span class="bold">役割:</span> 最終的な分類スコアの出力</li>
-      <li><span class="bold">構造:</span>
-        <ul>
-          <li>従来のANNと同じく、すべてのニューロンが結合</li>
-          <li>畳み込み/プーリング層で抽出された特徴をすべて統合し、クラス分類などを行う</li>
-        </ul>
-      </li>
-    </ul>
-  </div>
-</div>
-
----
-
-<!-- class: content-gray show-page -->
-
-## 5. CNNの設計レシピ
-一般的に、畳み込み層とプーリング層を交互に重ねる構成が基本となります
-
-<span class="bold">基本的な設計パターン</span>
-- 入力層に近い部分でエッジなどの単純な特徴を学習
-- 層が深くなるにつれて、より複雑で抽象的な特徴を学習
-
-[図: Figure 5. 複数の畳み込み層を重ねた、より一般的なCNNアーキテクチャ]
-
-<span class="bold">設計のヒント</span>
-- **小さなフィルタを深く重ねる:** 3x3のような小さなフィルタを複数重ねることで、パラメータ数を抑えつつ、より表現力の高い特徴を学習できる。
-- **[CONV -> ReLU] -> POOL の繰り返し:** 畳み込みと活性化関数(ReLU)をセットにし、プーリングで次元を削減するブロックを繰り返すのが一般的。
-
----
-
-<!-- class: content-gray show-page -->
-
-## CNNは何を学習しているのか？ (学習の可視化)
-最初の畳み込み層が学習したフィルタを可視化することで、CNNの挙動を理解できます
-
-[図: Figure 3. MNISTで学習したCNNの最初の畳み込み層のアクティベーション]
-
-<br>
-
-<div class="dashed-box">
-  <div class="text-center">
-    <p>
-    この図は、ネットワークが数字の<span class="bold red-text">エッジやストローク、特定の曲線</span>といった、<br>
-    画像の基本的な視覚的特徴を<span class="bold blue-text">自動で学習</span>していることを示しています。
-    </p>
-  </div>
-</div>
-
----
-
 <!-- class: content-gray show-page -->
 
 ## 6. まとめ
-本論文は、CNNの基本的な概念とアーキテクチャを解説しました
+本発表の要点です
 
-1.  **効率的なアーキテクチャ**
-    - CNNは画像の<span class="bold blue-text">空間的局所性</span>を利用し、「局所的結合」と「パラメータ共有」によってパラメータ数を大幅に削減します。
+*   <span class="bold">CNNは画像の特性を活かした効率的なアーキテクチャ</span>
+    *   局所結合とパラメータ共有により、従来のANNのパラメータ爆発問題を解決
 
-2.  **階層的な特徴抽出**
-    - <span class="bold blue-text">畳み込み層</span>・<span class="bold blue-text">プーリング層</span>・<span class="bold blue-text">全結合層</span>を組み合わせることで、画像から単純な特徴（エッジ）から複雑な特徴（オブジェクト）までを階層的に抽出・分類します。
+*   <span class="bold">3つの主要な層で構成</span>
+    *   畳み込み層（特徴抽出）、プーリング層（次元削減）、全結合層（分類）の組み合わせ
 
-3.  **画像認識の強力な基盤**
-    - シンプルな構造でありながら高い性能を発揮し、現代の画像認識タスクにおいて不可欠な基本モデルとなっています。
+*   <span class="bold">階層的な特徴学習</span>
+    *   単純な特徴（エッジ）から複雑な特徴（物体のパーツ）へと段階的に学習
+
+<br>
+<span class="bold">本論文は、CNNの基本を理解し、画像認識モデルを構築するための優れた入門となります</span>
